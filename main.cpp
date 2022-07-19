@@ -42,7 +42,7 @@ int main()
     }
     sim = sim * 24 * 60 * 60;
     sf::Color orange(255, 165, 0, 255);
-    std::cout << std::setprecision(16); 
+    //std::cout << std::setprecision(16); 
     PlanetSystem* sun = new PlanetSystem(std::vector<Planet*> {
         new Planet("Sun", 1.392e9, 1.989e30, 0, 0, Vectorld2d(0, 0), sf::Color::Yellow, 1.392e9)}, // creating planet for system 
         0, 0, Vectorld2d(0, 0)); // coordinates and speed of system
