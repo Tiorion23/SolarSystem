@@ -51,7 +51,6 @@ void SolarSystem::add_system(PlanetSystem* ps)
 
 void SolarSystem::move(int astep) {
 	x += speed[0] * astep;
-	//shape.setPosition(x / 1000000000 + 640, y / 1000000000 + 360);
 	y += speed[1] * astep;
 	bounding_volume = Volume(Vectorld2d(x, y), bounding_volume.get_size());
 }

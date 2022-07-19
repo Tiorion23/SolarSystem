@@ -106,7 +106,6 @@ void PlanetSystem::add_planet(Planet* p)
 
 void PlanetSystem::move(int astep) {
 	x = x + sspeed[0] * astep;
-	//shape.setPosition(x / 1000000000 + 640, y / 1000000000 + 360);
 	y = y + sspeed[1] * astep;
 	bounding_volume = Volume(Vectorld2d(x, y), bounding_volume.get_size());
 	
