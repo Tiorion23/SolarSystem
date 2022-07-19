@@ -8,7 +8,6 @@ Camera::Camera(sf::Vector2f startCoords, sf::Vector2f resolution): startingView(
 	yRes = resolution.y;    //camera resolution on Ó-axis
 	view = startingView;
 	view.zoom(default_scale);
-	//worldSize = sf::Vector2f(200000000000, 120000000000);
 }
 
 Camera::Camera() { }
@@ -37,7 +36,7 @@ void Camera::resize(int newWidth, int newHeight)
 	xRes = newWidth;
 	yRes = newHeight;
 	setView(view.getCenter(), sf::Vector2f(newWidth, newHeight));
-	view.zoom(default_scale);
+	view.zoom(default_scale*scale);
 }
 
 void Camera::move(sf::Vector2f oldPosition, sf::Vector2f newPosition)

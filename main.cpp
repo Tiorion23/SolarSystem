@@ -102,7 +102,8 @@ int main()
     PlanetSystem* focus_system = nullptr; // followed planetary system
     Planet* focus_planet = nullptr; // followed planet
     sf::RenderWindow window(sf::VideoMode(1280, 720), "Solar System");    // creating window 
-    Camera* cam = new Camera({ 385000000000.f, 180000000000.f }, sf::Vector2f(window.getSize()));
+    //window.setVerticalSyncEnabled(true);
+    Camera* cam = new Camera({ float(sun->get_x()), float(sun->get_y())}, sf::Vector2f(window.getSize()));
     window.setView(cam->getView());    
     
     //simulation for planetary systems
@@ -144,6 +145,7 @@ int main()
                         }
                         cameraMoving = true;
                         std::cout << "cameraMoving = " << cameraMoving << " x0 = " << pointerPos.x << " y0 = " << pointerPos.y << "\n";
+                        std::cout << "current view center " << " x1 = " << cam->getView().getCenter().x << " y1 = " << cam->getView().getCenter().y << "\n";
                         oldPos = pointerPos;
                     }
                     else if (!cameraMoving && following) {
@@ -164,6 +166,7 @@ int main()
                 {
                     cameraMoving = false;
                     std::cout << "cameraMoving = " << cameraMoving << " x1 = " << oldPos.x << " y1 = " << oldPos.y << "\n";
+                    std::cout << "new view center " << " x1 = " << cam->getView().getCenter().x << " y1 = " << cam->getView().getCenter().y << "\n";
                 }
                 break;
             case sf::Event::MouseMoved:
@@ -220,49 +223,5 @@ int main()
                 break;
         }
     }    
-    //simulation for planets
-    /*while (window.isOpen())
-    {        
-        sf::Event event;
-        while (window.pollEvent(event))
-        {
-            if (event.type == sf::Event::Closed)
-                window.close();
-        }
-        if (sim == 0) {
-            info.setString(utility::timer(time) + utility::info(sol));
-
-            for (const auto& a : sol) {
-                a->set_speed(utility::vector_sum(a->get_speed(), utility::mod_vector(utility::grav_pull(a, utility::interaction_list(a, sol)), step)));
-                a->move(a->get_x() + a->get_speed()[0] * step, a->get_y() + a->get_speed()[1] * step);                
-            }
-         
-            window.clear();
-            for (const auto& a : sol) {
-                a->draw_planet(window);
-            }                       
-            window.draw(info);
-            window.display();
-            time += step;            
-        }
-        else if (sim > 0) {
-            info.setString(utility::timer(time) + utility::info(std::vector<Planet*> {sun, mercury, venus, earth, moon}));
-
-            for (const auto& a : sol) {
-                a->set_speed(utility::vector_sum(a->get_speed(), utility::mod_vector(utility::grav_pull(a, utility::interaction_list(a, sol)), step)));
-                a->move(a->get_x() + a->get_speed()[0] * step, a->get_y() + a->get_speed()[1] * step);
-            }
-
-            window.clear();
-            for (const auto& a : sol) {
-                a->draw_planet(window);
-            }
-            window.draw(info);
-            window.display();
-            time += step;
-            if (time == sim)
-                break;
-        }        
-    }*/
     return 0;
 }

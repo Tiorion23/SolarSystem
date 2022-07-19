@@ -9,7 +9,6 @@ class Camera
 	float scale; //current display scale
 	const sf::View startingView; //starting camera view, used for getting back to default camera state
 	sf::View view; //current camera view
-	//sf::Vector2f worldSize;
 
 public:
 	// default constructor
