@@ -163,11 +163,11 @@ void PlanetSystem::simulate(int astep) {
 		a->update_speed(astep);
 		a->move(astep);
 	}
-	/*std::vector<long double> baric = baricenter();
-	for (auto& a : planets) {
+	std::vector<long double> baric = baricenter(); //calculating baricenter
+	for (auto& a : planets) {			   //moving each planetaccording to baricenter
 		a->set_x(a->get_x() - baric[0]);
 		a->set_y(a->get_y() - baric[1]);
-	}*/
+	}
 }
 
 bool PlanetSystem::is_clicked(sf::Vector2f pointer)
