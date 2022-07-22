@@ -21,11 +21,11 @@ public:
 	Vectorld2d& operator= (const Vectorld2d& v);
 
 	//vector sum of two vectors
-	friend Vectorld2d& operator+ (const Vectorld2d& v1, const Vectorld2d& v2);
+	friend Vectorld2d operator+ (const Vectorld2d& v1, const Vectorld2d& v2);
 
 	//multiplying vector by number
-	friend Vectorld2d& operator* (const Vectorld2d& v1, const int m);
-	friend Vectorld2d& operator* (const Vectorld2d& v1, const long double m);
+	friend Vectorld2d operator* (const Vectorld2d& v1, const int m);
+	friend Vectorld2d operator* (const Vectorld2d& v1, const long double m);
 
 	//multiplies vector by vector, no realiztion yet
 	friend Vectorld2d& operator* (const Vectorld2d& v1, const Vectorld2d& v2);

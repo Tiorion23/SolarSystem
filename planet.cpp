@@ -4,62 +4,58 @@ Planet::Planet(std::string nm, long double diam, long double m, long double xc, 
 	sf::Color color, float shapesize): name(nm) {
 	diameter = diam;
 	mass = m;
-	x = xc;
-	y = yc;
-	bounding_volume = Volume(Vectorld2d(x, y), diameter / 2);
+	coords = Vectorld2d(xc, yc);
+	global_coords = Vectorld2d(xc, yc);	
+	bounding_volume = Volume(global_coords, diameter / 2);
 	speed = sp;
 	acceleration = Vectorld2d(0, 0);
 	phi = (pow(sqrt(pow(xc,2)+pow(yc,2)), 2) + pow(sqrt(pow(xc, 2) + pow(yc, 2)), 2) - pow(sqrt(pow(sp[0], 2) + pow(sp[1], 2)), 2)) / (2 * sqrt(pow(xc, 2) + pow(yc, 2)) * sqrt(pow(xc, 2) + pow(yc, 2)));
 	shape = sf::CircleShape(shapesize);
 	shape.setFillColor(color);
 	shape.setOrigin(shape.getRadius(), shape.getRadius());
-	//shape.setPosition(x / 1000000000 + 640, y / 1000000000 + 360);
-	shape.setPosition(x , y );
+	shape.setPosition(global_coords.x , global_coords.y);
+	bounds = sf::RectangleShape({ float(bounding_volume.get_size()*2),  float(bounding_volume.get_size()*2) });
+	bounds.setOrigin(bounds.getSize() / 2.f);
+	bounds.setPosition(global_coords.x, global_coords.y);
+	bounds.setOutlineColor(sf::Color::Red);
+	bounds.setOutlineThickness(1000000.f);
 }
 
-//Planet::~Planet() {}
+	//////////////////////////////////////////////////////////////////
+	///////////////// INTERFACE: GETTERS AND SETTERS /////////////////
+	//////////////////////////////////////////////////////////////////
 
 std::string Planet::get_name() const { return name; }
-Vectorld2d Planet::get_speed() const { return speed; }
 long double Planet::get_diameter() { return diameter; }
+Vectorld2d Planet::get_speed() const { return speed; }
 void Planet::set_speed(Vectorld2d sp) { speed = sp; }
-void Planet::update_speed(int astep) { 
-	Vectorld2d temp = acceleration * astep;
-	Vectorld2d temp1 = speed + temp;
-	speed = temp1; }
 Vectorld2d Planet::get_acceleration() { return acceleration; }
 void Planet::set_acceleration(Vectorld2d acc) { acceleration = acc; }
 long double Planet::get_mass() const { return mass; }
-long double Planet::get_x() const { return x; }
-void Planet::set_x(long double arg) { x = arg;  }
+void Planet::set_mass(long double m) { mass = m; }
 
-long double Planet::get_y() const { return y; }
-void Planet::set_y(long double arg) { y = arg; }
+long double Planet::get_x() const { return coords.x; }
+void Planet::set_x(long double arg) { coords.x = arg; }
+long double Planet::get_y() const { return coords.y; }
+void Planet::set_y(long double arg) { coords.y = arg; }
+long double Planet::get_global_x() { return global_coords.x; }
+long double Planet::get_global_y() { return global_coords.y; }
+void Planet::set_global_x(long double arg) { global_coords.x = arg; }
+void Planet::set_global_y(long double arg) { global_coords.y = arg; }
 
-void Planet::move(int step) {
-	x += speed[0] * step;
-	y += speed[1] * step;
-	bounding_volume = Volume(Vectorld2d(x, y), diameter / 2);;
-	//shape.setPosition(x / 1000000000 + 640, y / 100000000 + 360);
-	//shape.setPosition(x , y );
-}
+Vectorld2d Planet::get_coords() { return coords; }
+void Planet::set_coords(Vectorld2d c) { coords = c; }
+Vectorld2d Planet::get_global_coords() { return global_coords; }
+void Planet::set_global_coords(Vectorld2d c) { global_coords = c; }
 
-bool operator==(const Planet& p1, const Planet& p2)
-{
-	if (p1.name == p2.name)
-		return true;
-	return false;
-}
-
-bool operator!=(const Planet& p1, const Planet& p2)
-{
-	if (p1.name != p2.name)
-		return true;
-	return false;
-}
+	//////////////////////////////////////////////////////////////////
+	///////////////////// PHYSICAL INTERACTIONS //////////////////////
+	//////////////////////////////////////////////////////////////////
+	// including friend functions for calculating gravitational force and pull from given vector of planets, distance between 
+	// two planets
 
 const long double distance(const Planet& p1, const Planet& p2) {
-	return sqrt(pow(p2.x - p1.x, 2) + pow(p2.y - p1.y, 2));
+	return sqrt(pow(p2.coords.x - p1.coords.x, 2) + pow(p2.coords.y - p1.coords.y, 2));
 }
 
 Vectorld2d grav_force(const Planet& p, std::vector<Planet*> planets) {
@@ -84,8 +80,8 @@ Vectorld2d grav_force(const Planet& p, std::vector<Planet*> planets) {
 			fy = (fl * sin(alpha));
 		//fx = (fl * cos(alpha)); //WHY??? THIS DOESNT WORK??? if i remove fabs in alpha
 		//fy = (fl * sin(alpha));
-		f[0] += fx;
-		f[1] += fy;
+		f.x += fx;
+		f.y += fy;
 	}
 	return f;
 }
@@ -94,6 +90,19 @@ void grav_pull(Planet& p, std::vector<Planet*> planets) {
 	Vectorld2d f = grav_force(p, planets);
 	p.set_acceleration(f * (1e0 / p.get_mass()));
 }
+
+void Planet::update_speed(int astep) {
+	speed = speed + acceleration * astep; }
+
+void Planet::move(int step) {
+	coords = coords + (speed * step);
+}
+
+	//////////////////////////////////////////////////////////////////
+	//////////////////////// UTILITY FUNCTIONS ///////////////////////
+	//////////////////////////////////////////////////////////////////
+	// includes friend function that returns vector of planets without given planet
+	// draw and other graphic related functions
 
 std::vector<Planet*> interaction_list(const Planet& p, std::vector<Planet*> planets) {
 	std::vector<Planet*> result;
@@ -105,27 +114,41 @@ std::vector<Planet*> interaction_list(const Planet& p, std::vector<Planet*> plan
 }
 
 void Planet::resize_shape(float s) {
-	if (shape.getRadius() == diameter / 2 && s < 1)
-		return;
+	/*if (shape.getRadius() == diameter / 2 && s < 1)
+		return;*/
 	shape.scale(s, s);
 }
 
-void Planet::draw_planet(sf::RenderWindow &w) {
-	shape.setPosition(x, y);
-	w.draw(shape);
+void Planet::update_bounding_volume() {
+	bounding_volume.set_coordinates(global_coords);
 }
-/*
-void Planet::draw_planet(sf::RenderWindow& w, long double xx, long double yy) {
-	shape.setPosition((xx + x) / 1000000000 + 640, (yy + y) / 1000000000 + 360);
-	w.draw(shape);
-}*/
 
-void Planet::draw_planet(sf::RenderWindow& w, long double xx, long double yy) {
-	shape.setPosition((xx + x), (yy + y));
+void Planet::draw_planet(sf::RenderWindow& w) {
+	shape.setPosition(global_coords.x, global_coords.y);
+	bounds.setPosition(global_coords.x, global_coords.y);
 	w.draw(shape);
+	//w.draw(bounds);		//uncomment to draw bounding volume bounds
 }
 
 bool Planet::is_clicked(sf::Vector2f pointer)
 {
 	return bounding_volume.isPointInVolume(Vectorld2d(pointer.x, pointer.y));
+}
+
+	//////////////////////////////////////////////////////////////////
+	///////////////// COMPARISON OPERATORS OVERLOAD //////////////////
+	//////////////////////////////////////////////////////////////////
+
+bool operator==(const Planet& p1, const Planet& p2)
+{
+	if (p1.name == p2.name)
+		return true;
+	return false;
+}
+
+bool operator!=(const Planet& p1, const Planet& p2)
+{
+	if (p1.name != p2.name)
+		return true;
+	return false;
 }

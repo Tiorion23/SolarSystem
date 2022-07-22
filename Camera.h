@@ -30,7 +30,7 @@ public:
 	//resizes after change of size of window
 	void resize(int newWidth, int newHeight);
 	//camera move
-	void move(sf::Vector2f oldPosition, sf::Vector2f newPosition);
+	void move(sf::Vector2i oldPosition, sf::Vector2i newPosition);
 	//resets camera to default 
 	void reset();
 	//changes camera scale

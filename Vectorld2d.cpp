@@ -48,17 +48,17 @@ Vectorld2d& Vectorld2d::operator= (const Vectorld2d& v) {
     return *this;
 }
 
-Vectorld2d& operator+ (const Vectorld2d& v1, const Vectorld2d& v2) {
+Vectorld2d operator+ (const Vectorld2d& v1, const Vectorld2d& v2) {
     Vectorld2d result = Vectorld2d(v1.x + v2.x, v1.y + v2.y);
     return result;
 }
 
-Vectorld2d& operator* (const Vectorld2d& v1, const int m) {
+Vectorld2d operator* (const Vectorld2d& v1, const int m) {
     Vectorld2d result = Vectorld2d(v1.x * m, v1.y * m);
     return result;
 }
 
-Vectorld2d& operator* (const Vectorld2d& v1, const long double m) {
+Vectorld2d operator* (const Vectorld2d& v1, const long double m) {
     Vectorld2d result = Vectorld2d(v1.x * m, v1.y * m);
     return result;
 }
