@@ -1,13 +1,17 @@
 #pragma once
+#include <stack>
 #include <SFML/Graphics.hpp>
+#include "State.h"
 #include "Camera.h"
 #include "SolarSystem.h"
 #include "PlanetSystem.h"
 #include "planet.h"
+class State;
 class Engine
 {
-    //переменные для графической части движка
-    sf::RenderWindow m_Window; //window, to which everything is rendered
+public:
+    std::stack <State*> states;
+    sf::RenderWindow window; //window, to which everything is rendered
     Camera cam;                // player camera
     sf::Font font;             //font used to print text to window
     sf::Text text;             //text printed to window
@@ -19,10 +23,21 @@ class Engine
     PlanetSystem* focus_system;// focused on planet system
     Planet* focus_planet;      // focused on planet
 
-public:
+
     //constructor, creates necessary variables and simulatable objects
     Engine();
-    //starts working cycle with simulation
+    //destructor
+    ~Engine();
+    //adds state on top of state stack
+    void push_state(State* state);
+    //removes top state from state stack
+    void pop_state();
+    //changes state on top of the state stack
+    void change_state(State* state);
+    //returns whatever state is on top of state stack
+    State* peek_state();
+
+    //starts engines's working cycle
     void run();
 };
 

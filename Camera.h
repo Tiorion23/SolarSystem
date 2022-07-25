@@ -9,6 +9,7 @@ class Camera
 	float scale; //current display scale
 	const sf::View startingView; //starting camera view, used for getting back to default camera state
 	sf::View view; //current camera view
+	sf::View ui_view; //interface view
 
 public:
 	// default constructor
@@ -18,6 +19,8 @@ public:
 
 	//getter for current view
 	sf::View getView() const;
+	//getter for UI view
+	sf::View getUIView() const;
 	//getter for starting view
 	sf::View getStartingView() const;
 	//getter for current scale

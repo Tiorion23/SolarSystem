@@ -134,14 +134,14 @@ void SolarSystem::simulate(int step) {
 	// includes friend function that returns vector of planetary systems without given planetary system
 	// draw functions
 
-std::vector<SolarSystem*> interaction_list(const SolarSystem& ss, std::vector<SolarSystem*> ssystems) {
-	std::vector<SolarSystem*> result;
-	for (const auto& a : ssystems) {
-		if (*a != ss)
-			result.push_back(a);
-	}
-	return result;
-}
+//std::vector<SolarSystem*> interaction_list(const SolarSystem& ss, std::vector<SolarSystem*> ssystems) {
+//	std::vector<SolarSystem*> result;
+//	for (const auto& a : ssystems) {
+//		if (*a != ss)
+//			result.push_back(a);
+//	}
+//	return result;
+//}
 
 Vectorld2d SolarSystem::baricenter() {
 	Vectorld2d result;

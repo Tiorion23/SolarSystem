@@ -8,6 +8,8 @@ Camera::Camera(sf::Vector2f startCoords, sf::Vector2f resolution): startingView(
 	xRes = resolution.x;    //camera resolution on Õ-axis
 	yRes = resolution.y;    //camera resolution on Ó-axis
 	view = startingView;
+	ui_view = startingView;
+	ui_view.setCenter(ui_view.getSize() * 0.5f);
 	view.zoom(default_scale);
 }
 
@@ -19,6 +21,7 @@ sf::View Camera::getStartingView() const
 float Camera::get_scale() { return scale; }
 
 sf::View Camera::getView() const { return view; }
+sf::View Camera::getUIView() const { return ui_view; }
 
 void Camera::setView(sf::View newView)
 {

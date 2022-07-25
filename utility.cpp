@@ -159,7 +159,7 @@ std::string utility::info(const std::vector<Planet*> &planets) {
             //" Fx=" << grav_force(*a, interaction_list(*a, planets))[0] << 
             //" Fy=" << grav_force(*a, interaction_list(*a, planets))[1] << 
             " V = " << sqrt(pow(a->get_speed()[0],2) + pow(a->get_speed()[1], 2)) << 
-            " x = " << a->get_x() << " y = " << a->get_y() << "\n"; 
+            /*" x = " << a->get_x() << " y = " << a->get_y() <<*/ "\n"; 
     }
     result += myString.str();
     return result;
@@ -173,7 +173,7 @@ std::string utility::info(const PlanetSystem& ps) {
             //" Fx=" << grav_force(*a, interaction_list(*a, ps.get_planets()))[0] <<
             //" Fy=" << grav_force(*a, interaction_list(*a, ps.get_planets()))[1] <<
             " V = " << sqrt(pow(a->get_speed()[0], 2) + pow(a->get_speed()[1], 2)) <<
-            " x = " << a->get_x() << " y = " << a->get_y() << "\n";
+            /*" x = " << a->get_x() << " y = " << a->get_y() <<*/ "\n";
     }
     result += myString.str();
     return result;

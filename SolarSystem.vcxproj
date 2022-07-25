@@ -151,7 +151,10 @@
     <ClCompile Include="main.cpp" />
     <ClCompile Include="planet.cpp" />
     <ClCompile Include="PlanetSystem.cpp" />
+    <ClCompile Include="SimulationState.cpp" />
     <ClCompile Include="SolarSystem.cpp" />
+    <ClCompile Include="StartState.cpp" />
+    <ClCompile Include="State.cpp" />
     <ClCompile Include="utility.cpp" />
     <ClCompile Include="Vectorld2d.cpp" />
     <ClCompile Include="Volume.cpp" />
@@ -162,7 +165,10 @@
     <ClInclude Include="planet.h" />
     <ClInclude Include="resource.h" />
     <ClInclude Include="PlanetSystem.h" />
+    <ClInclude Include="SimulationState.h" />
     <ClInclude Include="SolarSystem.h" />
+    <ClInclude Include="StartState.h" />
+    <ClInclude Include="State.h" />
     <ClInclude Include="utility.h" />
     <ClInclude Include="Vectorld2d.h" />
     <ClInclude Include="Volume.h" />

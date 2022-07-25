@@ -1,4 +1,6 @@
 #include <SFML/Graphics.hpp>
+#include "Engine.h"
+#include "StartState.h"
 #include "utility.h"
 #include "planet.h"
 #include "PlanetSystem.h"
@@ -12,6 +14,9 @@
 
 int main()
 {
+    /*Engine engine;
+    engine.push_state(new StartState(&engine));
+    engine.run();*/
     unsigned long long int time = 0; // number of simulated seconds
     int sim;
     int step;
@@ -38,8 +43,7 @@ int main()
             step = step * 60;
             break;
         }
-            
-    }
+    } 
     sim = sim * 24 * 60 * 60;
     sf::Color orange(255, 165, 0, 255);
     //std::cout << std::setprecision(16); 
@@ -85,7 +89,7 @@ int main()
     sf::RenderWindow window(sf::VideoMode(1280, 720), "Solar System");    // creating window 
     //window.setVerticalSyncEnabled(true);
     Camera* cam = new Camera({ float(sun->get_global_x()), float(sun->get_global_y())}, sf::Vector2f(window.getSize())); //camera focuses on Sun
-    window.setView(cam->getView());    
+    window.setView(cam->getUIView());    
     
     //simulation for planetary systems
     while (window.isOpen())
@@ -121,7 +125,7 @@ int main()
                         oldPos = pointerPos;
                     }
                 }
-                break;                
+                break;
             case sf::Event::MouseButtonReleased: // mouse button released, map cant be moved now
                 if (event.mouseButton.button == 0)
                 {
@@ -165,9 +169,7 @@ int main()
         }        
         if (sim == 0) {
             info.setString(utility::timer(time) + utility::info(sol->get_systems()));
-            sol->simulate(step);
-            window.setView(window.getDefaultView());
-            window.draw(info);
+            sol->simulate(step);            
             if (following) {
                 cam->setView(sf::Vector2f(focus_system->get_global_x(), focus_system->get_global_y()), cam->getView().getSize());
                 window.setView(cam->getView());
@@ -175,14 +177,14 @@ int main()
             else
                 window.setView(cam->getView());
             sol->draw_system(window);
+            window.setView(cam->getUIView());
+            window.draw(info);
             window.display();
             time += step;
         }
         else if (sim > 0) {
             info.setString(utility::timer(time) + utility::info(sol->get_systems()));
-            sol->simulate(step);
-            window.setView(window.getDefaultView());
-            window.draw(info);
+            sol->simulate(step);            
             if (following) {
                 cam->setView(sf::Vector2f(focus_system->get_global_x(), focus_system->get_global_y()), cam->getView().getSize());
                 window.setView(cam->getView());
@@ -190,6 +192,8 @@ int main()
             else
                 window.setView(cam->getView());
             sol->draw_system(window);
+            window.setView(window.getDefaultView());
+            window.draw(info);
             window.display();
             time += step;
             if (time == sim)

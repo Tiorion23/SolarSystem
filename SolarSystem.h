@@ -97,11 +97,9 @@ public:
 	///////////////// COMPARISON OPERATORS OVERLOAD //////////////////
 	//////////////////////////////////////////////////////////////////
 
-	//operator == overload for PlanetSystem  class
-	friend bool operator== (const SolarSystem& ss1, const SolarSystem& ss2);
-	//operator != overload for PlanetSystem class
-	friend bool operator!= (const SolarSystem& ss1, const SolarSystem& ss2);
-
-	
+	////operator == overload for PlanetSystem  class
+	//friend bool operator== (const SolarSystem& ss1, const SolarSystem& ss2);
+	////operator != overload for PlanetSystem class
+	//friend bool operator!= (const SolarSystem& ss1, const SolarSystem& ss2);	
 };
 
