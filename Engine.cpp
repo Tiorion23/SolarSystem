@@ -1,11 +1,33 @@
 #include "Engine.h"
+
 Engine::Engine() {
 	window.create(sf::VideoMode(1280, 720), "Solar System");
-
+	window.setFramerateLimit(60);
+	graphics_handler = GraphicsHandler();
+	load_fonts();
+	load_styles();
 }
 
 Engine::~Engine() {
 	while (!this->states.empty()) pop_state();
+}
+
+void Engine::load_fonts() {
+	sf::Font font;
+	font.loadFromFile("fonts/arial.ttf");
+	this->fonts["main_font"] = font;
+}
+
+void Engine::load_styles() {
+	this->styles["button"] = UiStyle(&this->fonts.at("main_font"), 1,
+		sf::Color(0xc6, 0xc6, 0xc6), sf::Color(0x94, 0x94, 0x94), sf::Color(0x00, 0x00, 0x00),
+		sf::Color(0x61, 0x61, 0x61), sf::Color(0x94, 0x94, 0x94), sf::Color(0x00, 0x00, 0x00));
+	this->styles["text"] = UiStyle(&this->fonts.at("main_font"), 0,
+		sf::Color(0x00, 0x00, 0x00, 0x00), sf::Color(0x00, 0x00, 0x00), sf::Color(0xff, 0xff, 0xff),
+		sf::Color(0x00, 0x00, 0x00, 0x00), sf::Color(0x00, 0x00, 0x00), sf::Color(0xff, 0x00, 0x00));
+	this->styles["panel"] = UiStyle(&this->fonts.at("main_font"),1,
+		sf::Color(0xc6, 0xc6, 0xc6, 128), sf::Color(0x94, 0x94, 0x94, 128), sf::Color(0x00, 0x00, 0x00),
+		sf::Color(0x61, 0x61, 0x61), sf::Color(0x94, 0x94, 0x94), sf::Color(0x00, 0x00, 0x00));
 }
 
 void Engine::push_state(State* state) {
@@ -39,7 +61,7 @@ void Engine::run() {
 		if (peek_state() == nullptr) continue;
 		peek_state()->handle_input();
 		peek_state()->update(dt);
-		this->window.clear(sf::Color::Black);
+		this->window.clear();
 		peek_state()->draw(dt);
 		this->window.display();
 	}

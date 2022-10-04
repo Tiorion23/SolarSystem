@@ -148,13 +148,15 @@
   <ItemGroup>
     <ClCompile Include="Camera.cpp" />
     <ClCompile Include="Engine.cpp" />
+    <ClCompile Include="GraphicsHandler.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="planet.cpp" />
     <ClCompile Include="PlanetSystem.cpp" />
-    <ClCompile Include="SimulationState.cpp" />
+    <ClCompile Include="ShapesManager.cpp" />
+    <ClCompile Include="SimState.cpp" />
     <ClCompile Include="SolarSystem.cpp" />
     <ClCompile Include="StartState.cpp" />
-    <ClCompile Include="State.cpp" />
+    <ClCompile Include="Ui.cpp" />
     <ClCompile Include="utility.cpp" />
     <ClCompile Include="Vectorld2d.cpp" />
     <ClCompile Include="Volume.cpp" />
@@ -162,13 +164,16 @@
   <ItemGroup>
     <ClInclude Include="Camera.h" />
     <ClInclude Include="Engine.h" />
+    <ClInclude Include="GraphicsHandler.h" />
     <ClInclude Include="planet.h" />
     <ClInclude Include="resource.h" />
     <ClInclude Include="PlanetSystem.h" />
-    <ClInclude Include="SimulationState.h" />
+    <ClInclude Include="ShapesManager.h" />
+    <ClInclude Include="SimState.h" />
     <ClInclude Include="SolarSystem.h" />
     <ClInclude Include="StartState.h" />
     <ClInclude Include="State.h" />
+    <ClInclude Include="Ui.h" />
     <ClInclude Include="utility.h" />
     <ClInclude Include="Vectorld2d.h" />
     <ClInclude Include="Volume.h" />

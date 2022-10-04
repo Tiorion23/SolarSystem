@@ -42,13 +42,19 @@
     <ClCompile Include="Volume.cpp">
       <Filter>Исходные файлы</Filter>
     </ClCompile>
-    <ClCompile Include="State.cpp">
-      <Filter>Исходные файлы</Filter>
-    </ClCompile>
     <ClCompile Include="StartState.cpp">
       <Filter>Исходные файлы</Filter>
     </ClCompile>
-    <ClCompile Include="SimulationState.cpp">
+    <ClCompile Include="SimState.cpp">
+      <Filter>Исходные файлы</Filter>
+    </ClCompile>
+    <ClCompile Include="Ui.cpp">
+      <Filter>Исходные файлы</Filter>
+    </ClCompile>
+    <ClCompile Include="GraphicsHandler.cpp">
+      <Filter>Исходные файлы</Filter>
+    </ClCompile>
+    <ClCompile Include="ShapesManager.cpp">
       <Filter>Исходные файлы</Filter>
     </ClCompile>
   </ItemGroup>
@@ -86,7 +92,16 @@
     <ClInclude Include="StartState.h">
       <Filter>Файлы заголовков</Filter>
     </ClInclude>
-    <ClInclude Include="SimulationState.h">
+    <ClInclude Include="SimState.h">
+      <Filter>Файлы заголовков</Filter>
+    </ClInclude>
+    <ClInclude Include="Ui.h">
+      <Filter>Файлы заголовков</Filter>
+    </ClInclude>
+    <ClInclude Include="GraphicsHandler.h">
+      <Filter>Файлы заголовков</Filter>
+    </ClInclude>
+    <ClInclude Include="ShapesManager.h">
       <Filter>Файлы заголовков</Filter>
     </ClInclude>
   </ItemGroup>
