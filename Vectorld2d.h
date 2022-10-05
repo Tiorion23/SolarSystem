@@ -1,5 +1,6 @@
-#pragma once
-//class for vectors and mathematic actions on them
+#ifndef VECTORLD2D
+#define VECTORLD2D
+//class for vectors of long double numbers and mathematic actions on them
 class Vectorld2d
 {
 public:
@@ -34,3 +35,4 @@ public:
 	const long double length();
 };
 
+#endif

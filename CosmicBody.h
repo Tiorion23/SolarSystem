@@ -1,4 +1,6 @@
-#pragma once
+#ifndef COSMIC_BODY
+#define COSMIC_BODY
+
 #include <SFML/Graphics.hpp>
 #include <SFML/Graphics/Color.hpp>
 #include <vector>
@@ -9,10 +11,14 @@
 #define G 6.67e-11
 #define PI atan(1) * 4
 
-//The class for Planets
-class Planet
+enum class CosmicBodyType {STAR, PLANET, SATELLITE};
+std::string cosmic_body_type_to_str(CosmicBodyType type);
+
+//The class for all kinds of cosmic bodies: stars, planets, sattelites, in future - asteroids and comets
+class CosmicBody
 {
 	//physical parameters
+	CosmicBodyType type;
 	const std::string name;
 	long double diameter;		// diameter of planet
 	long double mass;			// mass of planet
@@ -28,14 +34,13 @@ class Planet
 
 public:
 	// constructor
-	// nm - name of the planet, 
+	// nm - name of the cosmic body, 
 	// diam - diameter, m - mass in kg, 
 	// xc - x coordinate in Planetary system's coordinates,
 	// yc - y coordinate in planetary system's coordinates, 
 	// sp - speed in planetary system,
-	//color - color of planet on display, shapesize - size of planet on display in pixels
-	Planet(std::string nm, long double diam, long double m, long double xc, long double yc, Vectorld2d sp,
-		sf::Color color, float shapesize);
+	// shape - assigned shape, that is graphical representation of body
+	CosmicBody(CosmicBodyType tp, std::string nm, long double diam, long double m, long double xc, long double yc, Vectorld2d sp, sf::CircleShape shp);
 
 	//////////////////////////////////////////////////////////////////
 	///////////////// INTERFACE: GETTERS AND SETTERS /////////////////
@@ -64,20 +69,20 @@ public:
 
 	//getter for x coordinate
 	long double get_x() const;
-	//sets x coordinate of Planet
+	//sets x coordinate of body
 	void set_x(long double arg);
 	//getter for global x
 	long double get_global_x();	
-	//seter global x coordinate of Planet
+	//seter global x coordinate of body
 	void set_global_x(long double arg);
 
 	//getter for y coordinate
 	long double get_y() const;
-	//sets y coordinate of Planet
+	//sets y coordinate of body
 	void set_y(long double arg);
 	//getter for global y coordinate
 	long double get_global_y();	
-	//sets global y coordinate of Planet
+	//sets global y coordinate of body
 	void set_global_y(long double arg);
 	//getter for coodrds
 	Vectorld2d get_coords();
@@ -91,43 +96,43 @@ public:
 	//////////////////////////////////////////////////////////////////
 	///////////////////// PHYSICAL INTERACTIONS //////////////////////
 	//////////////////////////////////////////////////////////////////
-	// including friend functions for calculating gravitational force and pull from given vector of planets, distance between 
-	// two planets
+	// including friend functions for calculating gravitational force and pull from given vector of bodies, distance between 
+	// two bodies
 
-	//calculates distance between two planets
-	friend const long double distance(const Planet& p1, const Planet& p2);
+	//calculates distance between centers of two bodies
+	friend const long double distance(const CosmicBody& cb1, const CosmicBody& cb2);
 
-	//calculates summary vector of gravitational force on planet p from planets
-	friend Vectorld2d grav_force(const Planet& p, std::vector<Planet*> planets);
+	//calculates summary vector of gravitational force on body cb from any number of other bodies
+	friend Vectorld2d grav_force(const CosmicBody& cb, std::vector<CosmicBody*> bodies);
 
-	//calculates summary vector of acceleration from gravitational force on planet p from planets and sets planet's acceleration to it
-	friend void grav_pull(Planet& p, std::vector<Planet*> planets);
+	//calculates summary vector of acceleration from gravitational force on body cb from any number of other bodies and sets it's acceleration to calculated value
+	friend void grav_pull(CosmicBody& cb, std::vector<CosmicBody*> bodies);
 
 	//updates speed with current acceleration with given step
 	void update_speed(int astep);
 
-	//moves planet (both local and global coordinates and bounding volume) according to current speed and given time-step
+	//moves body (both local and global coordinates and bounding volume) according to current speed and given time-step
 	void move(int step);
 
 	//////////////////////////////////////////////////////////////////
 	//////////////////////// UTILITY FUNCTIONS ///////////////////////
 	//////////////////////////////////////////////////////////////////
-	// includes friend function that returns vector of planets without given planet
+	// includes friend function that returns vector of bodies without given body
 	// draw and other graphic related functions
 
-	//returns list of planets without planet p
-	friend std::vector<Planet*> interaction_list(const Planet& p, std::vector<Planet*> planets);
+	//returns list of bodies without body cb
+	friend std::vector<CosmicBody*> interaction_list(const CosmicBody& cb, std::vector<CosmicBody*> bodies);
 
-	//resizes shape of planet by
+	//resizes shape of body by
 	void resize_shape(float s);
 
 	//updates position of bounding volume based on current global coordinates
 	void update_bounding_volume();
 
-	//draws this planet's shape by its global coordinates
-	void draw_planet(sf::RenderWindow& w);
+	//draws this body by its global coordinates
+	void draw(sf::RenderWindow& w);
 
-	//checks if planet is clicked
+	//checks if body is clicked
 	bool is_clicked(sf::Vector2f pointer);
 
 	//////////////////////////////////////////////////////////////////
@@ -135,12 +140,9 @@ public:
 	//////////////////////////////////////////////////////////////////
 
 	//operator == overload for Planet class
-	friend bool operator== (const Planet& p1, const Planet& p2);
+	friend bool operator== (const CosmicBody& cb1, const CosmicBody& cb2);
 	//operator != overload for Planet class
-	friend bool operator!= (const Planet& p1, const Planet& p2);
-
-	
-
-	
+	friend bool operator!= (const CosmicBody& cb1, const CosmicBody& cb2);
 };
 
+#endif

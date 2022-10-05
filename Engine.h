@@ -1,4 +1,6 @@
-#pragma once
+#ifndef ENGINE
+#define ENGINE
+
 #include <stack>
 #include <SFML/Graphics.hpp>
 #include "State.h"
@@ -34,8 +36,9 @@ public:
     //returns whatever state is on top of state stack
     State* peek_state();
     //creates shapes
+    void create_shapes();
 
     //starts engines's working cycle
     void run();
 };
-
+#endif

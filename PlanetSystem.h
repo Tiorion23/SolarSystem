@@ -1,13 +1,14 @@
-#pragma once
+#ifndef PLANET_SYSTEM
+#define PLANET_SYSTEM
 #include <vector>
 #include "Vectorld2d.h"
-#include "planet.h"
+#include "CosmicBody.h"
 #include "Volume.h"
 #include <iostream>
 // class for planetary system that consists of 1+ planets, has its own coordinate system with (0, 0) in the baricenter (center of mass)
 class PlanetSystem
 {
-	std::vector<Planet*> planets; // Planet objects that system consists of
+	std::vector<CosmicBody*> planets; // Cosmic bodies that system consists of
 	//long double x; // x-coordinate of Planetary system's baricenter (0, 0) in solar system's coordinate system
 	//long double y; // y-coordinate of Planetary system's baricenter (0, 0) in solar system's coordinate system
 	Vectorld2d coords;			// coordinates of planetary system's baricenter (0,0) in solar system's coordinate system
@@ -23,18 +24,18 @@ public:
 	//ax - x coordinate of of Planetary system's (0, 0) in solar system's coordinate system;
 	//ay - y coordinate of of Planetary system's (0, 0) in solar system's coordinate system; 
 	//sp - speed of Planetary system in solar system's coordinate system
-	PlanetSystem(std::vector<Planet*> ps, long double ax, long double ay, Vectorld2d sp);
+	PlanetSystem(std::vector<CosmicBody*> ps, long double ax, long double ay, Vectorld2d sp);
 
 	//////////////////////////////////////////////////////////////////
 	///////////////// INTERFACE: GETTERS AND SETTERS /////////////////
 	//////////////////////////////////////////////////////////////////
 	//provided getters and setters for whole coordinate in vector as well as individual X and Y coordinates
 	
-	//getter for planets that planetary system consists of
-	std::vector<Planet*> get_planets() const;
-	// returns names of all planets in planetary system
+	//getter for cosmic bodies that planetary system consists of
+	std::vector<CosmicBody*> get_planets() const;
+	// returns names of all cosmic bodies in planetary system
 	std::string get_name() const;
-	//getter for mass of the system as sum of masses of panets
+	//getter for mass of the system as sum of masses of its cosmic bodies
 	long double get_mass() const;
 	//getter for x-coordinate
 	long double get_x() const;
@@ -115,7 +116,7 @@ public:
 	void resize_shapes(float s);
 
 	//draws all elemets of the system
-	void draw_system(sf::RenderWindow& w);
+	void draw(sf::RenderWindow& w);
 
 	//////////////////////////////////////////////////////////////////
 	///////////////// COMPARISON OPERATORS OVERLOAD //////////////////
@@ -124,6 +125,7 @@ public:
 	//operator == overload for PlanetSystem  class
 	friend bool operator== (const PlanetSystem& ps1, const PlanetSystem& ps2);
 	//operator != overload for PlanetSystem class
-	friend bool operator!= (const PlanetSystem& ps1, const PlanetSystem& ps2);	
+	friend bool operator!= (const PlanetSystem& ps1, const PlanetSystem& ps2);
 };
 
+#endif

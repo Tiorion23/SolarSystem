@@ -51,6 +51,22 @@ State* Engine::peek_state() {
 	return this->states.top();
 }
 
+void Engine::create_shapes() {
+	this->graphics_handler.get_shapes_manager().add_shape("Sun", 1.392e9 / 2, sf::Color::Yellow);
+	this->graphics_handler.get_shapes_manager().add_shape("Mercury", 4.8794e6 / 2 * 100, sf::Color::Magenta);
+	this->graphics_handler.get_shapes_manager().add_shape("Venus", 1.21036e7 / 2 * 100, sf::Color::Green);
+	this->graphics_handler.get_shapes_manager().add_shape("Earth", 1.2742e7 / 2 * 100, sf::Color::Blue);
+	this->graphics_handler.get_shapes_manager().add_shape("Moon", 3.47628e6 / 2 * 100, sf::Color::White);
+	this->graphics_handler.get_shapes_manager().add_shape("Mars", 6.779e6 / 2 * 100, sf::Color::Red);
+	this->graphics_handler.get_shapes_manager().add_shape("Phobos", 2.25e4 / 2 * 100, sf::Color::Cyan);
+	this->graphics_handler.get_shapes_manager().add_shape("Deimos", 1.24e4 / 2 * 100, sf::Color(100, 100, 100, 255));
+	this->graphics_handler.get_shapes_manager().add_shape("Jupiter", 69.911e6 / 2 * 10, sf::Color(255, 165, 0, 255));
+	this->graphics_handler.get_shapes_manager().add_shape("Io", 3.6426e4 / 2 * 100, sf::Color(50, 50, 50, 255));
+	this->graphics_handler.get_shapes_manager().add_shape("Europa", 3.1216e4 / 2 * 100, sf::Color(100, 150, 200, 255));
+	this->graphics_handler.get_shapes_manager().add_shape("Hanimedes", 5.2682e4 / 2 * 100, sf::Color(0, 255, 65, 255));
+	this->graphics_handler.get_shapes_manager().add_shape("Kallisto", 4.8206e4 / 2 * 100, sf::Color(255, 0, 155, 255));
+}
+
 void Engine::run() {
 	sf::Clock clock;
 	while (this->window.isOpen())

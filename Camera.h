@@ -1,4 +1,5 @@
-#pragma once
+#ifndef CAMERA
+#define CAMERA
 #include <SFML/Graphics.hpp>
 
 class Camera
@@ -40,3 +41,4 @@ public:
 	void rescale(float s);
 };
 
+#endif

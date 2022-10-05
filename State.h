@@ -1,4 +1,5 @@
-#pragma once
+#ifndef STATE
+#define STATE
 #include "Engine.h"
 
 class Engine;
@@ -13,3 +14,4 @@ public:
 	virtual void draw(const float dt) = 0;
 };
 
+#endif

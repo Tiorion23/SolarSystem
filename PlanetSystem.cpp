@@ -1,6 +1,6 @@
 #include "PlanetSystem.h"
 
-PlanetSystem::PlanetSystem(std::vector<Planet*> ps, long double ax, long double ay, Vectorld2d sp) {
+PlanetSystem::PlanetSystem(std::vector<CosmicBody*> ps, long double ax, long double ay, Vectorld2d sp) {
 	coords = Vectorld2d(ax, ay);
 	global_coords = coords;
 	planets = ps;							// vector of planets planetary system consists of
@@ -30,7 +30,7 @@ PlanetSystem::PlanetSystem(std::vector<Planet*> ps, long double ax, long double 
 	///////////////// INTERFACE: GETTERS AND SETTERS /////////////////
 	//////////////////////////////////////////////////////////////////
 
-std::vector<Planet*> PlanetSystem::get_planets() const { return planets; }
+std::vector<CosmicBody*> PlanetSystem::get_planets() const { return planets; }
 
 std::string PlanetSystem::get_name() const {
 	std::string result = "";
@@ -174,9 +174,9 @@ void PlanetSystem::resize_shapes(float s) {
 		a->resize_shape(s);
 }
 
-void PlanetSystem::draw_system(sf::RenderWindow &w) {
+void PlanetSystem::draw(sf::RenderWindow &w) {
 	for (const auto& a : planets)
-		a->draw_planet(w);
+		a->draw(w);
 }
 
 	//////////////////////////////////////////////////////////////////

@@ -1,9 +1,10 @@
-#pragma once
+#ifndef SIM_STATE
+#define SIM_STATE
 #include "State.h"
 #include "SolarSystem.h"
 #include "Ui.h"
 
-enum class ActionState { NONE, PANNING };
+enum class ActionState { NONE, PANNING, FOCUSED };
 
 class SimState : public State
 {
@@ -35,3 +36,4 @@ public:
 	SimState(Engine* engine);
 };
 
+#endif

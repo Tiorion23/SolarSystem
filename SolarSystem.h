@@ -1,4 +1,5 @@
-#pragma once
+#ifndef SOLAR_SYSTEM
+#define SOLAR_SYSTEM
 #include <vector>
 #include "Vectorld2d.h"
 #include "PlanetSystem.h"
@@ -91,7 +92,7 @@ public:
 	void resize_shapes(float s);
 
 	//draws all elemets of the system
-	void draw_system(sf::RenderWindow& w);
+	void draw(sf::RenderWindow& w);
 
 	//////////////////////////////////////////////////////////////////
 	///////////////// COMPARISON OPERATORS OVERLOAD //////////////////
@@ -103,3 +104,4 @@ public:
 	//friend bool operator!= (const SolarSystem& ss1, const SolarSystem& ss2);	
 };
 
+#endif

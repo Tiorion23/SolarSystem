@@ -2,13 +2,14 @@
 
 SimState::SimState(Engine* engine) {
 	this->engine = engine;
+    this->engine->create_shapes();
 	sf::Vector2f pos = sf::Vector2f(this->engine->window.getSize());
 	sim_view.setSize(pos);
 	ui_view.setSize(pos);
 	ui_view.setCenter(pos * 0.5f);    
     default_scale = 100000000.f;
     scale = 1.f;
-    sol = initialize_solar_system();
+    sol = initialize_solar_system();    
     sim_view.setCenter(this->sol->get_systems()[0]->get_global_coords().x, this->sol->get_systems()[0]->get_global_coords().y);
     sim_view.zoom(scale *= default_scale);
     action_state = ActionState::NONE;
@@ -28,30 +29,30 @@ SimState::SimState(Engine* engine) {
 }
 
 SolarSystem* SimState::initialize_solar_system() {
-    PlanetSystem* sun = new PlanetSystem(std::vector<Planet*> {
-        new Planet("Sun", 1.392e9, 1.989e30, 0, 0, Vectorld2d(0, 0), sf::Color::Yellow, 1.392e9 / 2)}, // creating planet for system 
+    PlanetSystem* sun = new PlanetSystem(std::vector<CosmicBody*> {
+        new CosmicBody(CosmicBodyType::STAR, "Sun", 1.392e9, 1.989e30, 0, 0, Vectorld2d(0, 0), this->engine->graphics_handler.get_shapes_manager().get_shape("Sun"))}, // creating planet for system 
         0, 0, Vectorld2d(0, 0)); // coordinates and speed of system
-    PlanetSystem* smercury = new PlanetSystem(std::vector<Planet*> {
-        new Planet("Mercury", 4.8794e6, 3.33022e23, 0, 0, Vectorld2d(0, 0), sf::Color::Magenta, 4.8794e6 / 2 * 100)},// creating planet for system
+    PlanetSystem* smercury = new PlanetSystem(std::vector<CosmicBody*> {
+        new CosmicBody(CosmicBodyType::PLANET, "Mercury", 4.8794e6, 3.33022e23, 0, 0, Vectorld2d(0, 0), this->engine->graphics_handler.get_shapes_manager().get_shape("Mercury"))},// creating planet for system
         -5.7909227e10, 0, Vectorld2d(0, -47360)); // coordinates and speed of system
-    PlanetSystem* svenus = new PlanetSystem(std::vector<Planet*> {
-        new Planet("Venus", 1.21036e7, 4.8675e24, 0, 0, Vectorld2d(0, 0), sf::Color::Green, 1.21036e7 / 2 * 100)}, // creating planet for system
+    PlanetSystem* svenus = new PlanetSystem(std::vector<CosmicBody*> {
+        new CosmicBody(CosmicBodyType::PLANET, "Venus", 1.21036e7, 4.8675e24, 0, 0, Vectorld2d(0, 0), this->engine->graphics_handler.get_shapes_manager().get_shape("Venus"))}, // creating planet for system
         -1.08942109e11, 0, Vectorld2d(0, -35020)); // coordinates and speed of system
-    PlanetSystem* earth_moon = new PlanetSystem(std::vector<Planet*> {
-        new Planet("Earth", 1.2742e7, 5.972e24, 0, 0, Vectorld2d(0, 0), sf::Color::Blue, 1.2742e7 / 2 * 100), // creating planet for system
-            new Planet("Moon", 3.47628e6, 7.3477e22, 4.067e8, 0, Vectorld2d(0, 1023), sf::Color::White, 3.47628e6 / 2 * 100)}, // creating planet for system
+    PlanetSystem* earth_moon = new PlanetSystem(std::vector<CosmicBody*> {
+        new CosmicBody(CosmicBodyType::PLANET, "Earth", 1.2742e7, 5.972e24, 0, 0, Vectorld2d(0, 0), this->engine->graphics_handler.get_shapes_manager().get_shape("Earth")), // creating planet for system
+            new CosmicBody(CosmicBodyType::SATELLITE, "Moon", 3.47628e6, 7.3477e22, 4.067e8, 0, Vectorld2d(0, 1023), this->engine->graphics_handler.get_shapes_manager().get_shape("Moon"))}, // creating planet for system
         1.495978707e11, 0, Vectorld2d(0, 29999.99999999941)); // coordinates and speed of system
-    PlanetSystem* mars = new PlanetSystem(std::vector <Planet*> {
-        new Planet("Mars", 6.779e6, 6.4171e23, 0, 0, Vectorld2d(0, 0), sf::Color::Red, 6.779e6 / 2 * 100),
-            new Planet("Phobos", 2.25e4, 1.072e16, 9.3772e6, 0, Vectorld2d(0, 2138.45), sf::Color::Cyan, 2.25e4 / 2 * 100),
-            new Planet("Deimos", 1.24e4, 1.48e15, 2.3458e7, 0, Vectorld2d(0, 1351.28), sf::Color(100, 100, 100, 255), 1.24e4 / 2 * 100)},
+    PlanetSystem* mars = new PlanetSystem(std::vector <CosmicBody*> {
+        new CosmicBody(CosmicBodyType::PLANET, "Mars", 6.779e6, 6.4171e23, 0, 0, Vectorld2d(0, 0), this->engine->graphics_handler.get_shapes_manager().get_shape("Mars")),
+            new CosmicBody(CosmicBodyType::SATELLITE, "Phobos", 2.25e4, 1.072e16, 9.3772e6, 0, Vectorld2d(0, 2138.45), this->engine->graphics_handler.get_shapes_manager().get_shape("Phobos")),
+            new CosmicBody(CosmicBodyType::SATELLITE, "Deimos", 1.24e4, 1.48e15, 2.3458e7, 0, Vectorld2d(0, 1351.28), this->engine->graphics_handler.get_shapes_manager().get_shape("Deimos"))},
         2.2794382e11, 0, Vectorld2d(0, 24130));
-    PlanetSystem* jupiter = new PlanetSystem(std::vector<Planet*> {
-        new Planet("Jupiter", 69.911e6, 1.8986e27, 0, 0, Vectorld2d(0, 0), sf::Color(255, 165, 0, 255), 69.911e6 / 2 * 10),
-            new Planet("Io", 3.6426e4, 8.9319e22, 4.217e8, 0, Vectorld2d(0, 17334), sf::Color(50, 50, 50, 255), 3.6426e4 / 2 * 100),
-            new Planet("Europa", 3.1216e4, 4.8017e22, -6.711e8, 0, Vectorld2d(0, 13740), sf::Color(100, 150, 200, 255), 3.1216e4 / 2 * 100),
-            new Planet("Hanimedes", 5.2682e4, 1.4819e23, 1.0704e9, 0, Vectorld2d(0, 10880), sf::Color(0, 255, 65, 255), 5.2682e4 / 2 * 100),
-            new Planet("Kallisto", 4.8206e4, 1.075e23, -1.8827e9, 0, Vectorld2d(0, 8204), sf::Color(255, 0, 155, 255), 4.8206e4 / 2 * 100)},
+    PlanetSystem* jupiter = new PlanetSystem(std::vector<CosmicBody*> {
+        new CosmicBody(CosmicBodyType::PLANET, "Jupiter", 69.911e6, 1.8986e27, 0, 0, Vectorld2d(0, 0), this->engine->graphics_handler.get_shapes_manager().get_shape("Jupiter")),
+            new CosmicBody(CosmicBodyType::SATELLITE, "Io", 3.6426e4, 8.9319e22, 4.217e8, 0, Vectorld2d(0, 17334), this->engine->graphics_handler.get_shapes_manager().get_shape("Io")),
+            new CosmicBody(CosmicBodyType::SATELLITE, "Europa", 3.1216e4, 4.8017e22, -6.711e8, 0, Vectorld2d(0, 13740), this->engine->graphics_handler.get_shapes_manager().get_shape("Europa")),
+            new CosmicBody(CosmicBodyType::SATELLITE, "Hanimedes", 5.2682e4, 1.4819e23, 1.0704e9, 0, Vectorld2d(0, 10880), this->engine->graphics_handler.get_shapes_manager().get_shape("Hanimedes")),
+            new CosmicBody(CosmicBodyType::SATELLITE, "Kallisto", 4.8206e4, 1.075e23, -1.8827e9, 0, Vectorld2d(0, 8204), this->engine->graphics_handler.get_shapes_manager().get_shape("Kallisto"))},
         7.785472e11, 0, Vectorld2d(0, 13070));
     SolarSystem* sol = new SolarSystem(std::vector <PlanetSystem*> { sun, smercury, svenus, earth_moon, mars, jupiter },
         0, 0, Vectorld2d(0, 0));
@@ -180,7 +181,7 @@ void SimState::update(const float dt) {
 void SimState::draw(const float dt) {
     this->engine->window.clear(sf::Color::Black);
     this->engine->window.setView(this->sim_view);
-    this->sol->draw_system(this->engine->window);
+    this->sol->draw(this->engine->window);
     this->engine->window.setView(this->ui_view);
     for (auto ui : this->ui_system)
         this->engine->window.draw(ui.second);

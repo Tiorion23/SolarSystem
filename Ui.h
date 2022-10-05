@@ -1,61 +1,11 @@
-#pragma once
+#ifndef UI
+#define UI
 #include <string>
 #include <utility>
 #include <vector>
 #include <SFML/Graphics.hpp>
-
-class UiStyle
-{
-public:
-
-    sf::Color bodyCol;              // body color of entry
-    sf::Color bodyHighlightCol;     // body color of entry if highlited
-    sf::Color borderCol;            // border color of entry
-    sf::Color borderHighlightCol;   // border color of entry if highlighted
-    sf::Color textCol;              // text color of text in entry
-    sf::Color textHighlightCol;     // text color of text in entry if highlighted
-    sf::Font* font;                 // pointer to font used
-
-    float borderSize;               // border width
-
-    //constructor
-    UiStyle(sf::Font* font, float borderSize,
-        sf::Color bodyCol, sf::Color borderCol, sf::Color textCol,
-        sf::Color bodyHighlightCol, sf::Color borderHighlightCol, sf::Color textHighlightCol)
-    {
-        this->bodyCol = bodyCol;
-        this->borderCol = borderCol;
-        this->textCol = textCol;
-        this->bodyHighlightCol = bodyHighlightCol;
-        this->borderHighlightCol = borderHighlightCol;
-        this->textHighlightCol = textHighlightCol;
-        this->font = font;
-        this->borderSize = borderSize;
-    }
-    UiStyle() { }
-};
-
-class UiEntry
-{
-public:
-
-    // Handles appearance of the entry
-    sf::RectangleShape shape;
-
-    // String returned when the entry is activated
-    std::string message;
-
-    // Text displayed on the entry
-    sf::Text text;
-
-    UiEntry(const std::string& message, sf::RectangleShape shape, sf::Text text)
-    {
-        this->message = message;
-        this->shape = shape;
-        this->text = text;
-    }
-    UiEntry() { }
-};
+#include "UiStyle.h"
+#include "UiEntry.h"
 
 class Ui: public sf::Transformable, public sf::Drawable {
 private:    
@@ -99,3 +49,5 @@ public:
     std::string activate(const int entry);
     std::string activate(const sf::Vector2f mousePos);
 };
+
+#endif

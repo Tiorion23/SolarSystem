@@ -1,4 +1,5 @@
-#pragma once
+#ifndef START_STATE
+#define START_STATE
 #include "State.h"
 #include "SimState.h"
 #include "Ui.h"
@@ -16,3 +17,4 @@ public:
 	StartState(Engine* engine);
 };
 
+#endif

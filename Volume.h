@@ -1,4 +1,5 @@
-#pragma once
+#ifndef VOLUME
+#define VOLUME
 #include "Vectorld2d.h"
 class Volume
 {
@@ -19,3 +20,4 @@ public:
 	bool isPointInVolume(Vectorld2d p);
 };
 
+#endif

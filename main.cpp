@@ -2,7 +2,7 @@
 #include "Engine.h"
 #include "StartState.h"
 #include "utility.h"
-#include "planet.h"
+#include "CosmicBody.h"
 #include "PlanetSystem.h"
 #include "SolarSystem.h"
 #include "Vectorld2d.h"
@@ -48,30 +48,30 @@ int main()
         sim = sim * 24 * 60 * 60;
         sf::Color orange(255, 165, 0, 255);
         //std::cout << std::setprecision(16); 
-        PlanetSystem* sun = new PlanetSystem(std::vector<Planet*> {
-            new Planet("Sun", 1.392e9, 1.989e30, 0, 0, Vectorld2d(0, 0), sf::Color::Yellow, 1.392e9 / 2)}, // creating planet for system 
+        PlanetSystem* sun = new PlanetSystem(std::vector<CosmicBody*> {
+            new CosmicBody(CosmicBodyType::STAR, "Sun", 1.392e9, 1.989e30, 0, 0, Vectorld2d(0, 0), sf::CircleShape(1.392e9 / 2))}, // creating planet for system 
             0, 0, Vectorld2d(0, 0)); // coordinates and speed of system
-        PlanetSystem* smercury = new PlanetSystem(std::vector<Planet*> {
-            new Planet("Mercury", 4.8794e6, 3.33022e23, 0, 0, Vectorld2d(0, 0), sf::Color::Magenta, 4.8794e6 / 2 * 100)},// creating planet for system
+        PlanetSystem* smercury = new PlanetSystem(std::vector<CosmicBody*> {
+            new CosmicBody(CosmicBodyType::PLANET, "Mercury", 4.8794e6, 3.33022e23, 0, 0, Vectorld2d(0, 0), sf::CircleShape(4.8794e6 / 2 * 100))},// creating planet for system
             -57909227000, 0, Vectorld2d(0, -47360)); // coordinates and speed of system
-        PlanetSystem* svenus = new PlanetSystem(std::vector<Planet*> {
-            new Planet("Venus", 1.21036e7, 4.8675e24, 0, 0, Vectorld2d(0, 0), sf::Color::Green, 1.21036e7 / 2 * 100)}, // creating planet for system
+        PlanetSystem* svenus = new PlanetSystem(std::vector<CosmicBody*> {
+            new CosmicBody(CosmicBodyType::PLANET, "Venus", 1.21036e7, 4.8675e24, 0, 0, Vectorld2d(0, 0), sf::CircleShape(1.21036e7 / 2 * 100))}, // creating planet for system
             -108942109000, 0, Vectorld2d(0, -35020)); // coordinates and speed of system
-        PlanetSystem* earth_moon = new PlanetSystem(std::vector<Planet*> {
-            new Planet("Earth", 1.2742e7, 5.972e24, 0, 0, Vectorld2d(0, 0), sf::Color::Blue, 1.2742e7 / 2 * 100), // creating planet for system
-                new Planet("Moon", 3.47628e6, 7.3477e22, 4.067e8, 0, Vectorld2d(0, 1023), sf::Color::White, 3.47628e6 / 2 * 100)}, // creating planet for system
+        PlanetSystem* earth_moon = new PlanetSystem(std::vector<CosmicBody*> {
+            new CosmicBody(CosmicBodyType::PLANET, "Earth", 1.2742e7, 5.972e24, 0, 0, Vectorld2d(0, 0), sf::CircleShape(1.2742e7 / 2 * 100)), // creating planet for system
+                new CosmicBody(CosmicBodyType::SATELLITE, "Moon", 3.47628e6, 7.3477e22, 4.067e8, 0, Vectorld2d(0, 1023), sf::CircleShape(3.47628e6 / 2 * 100))}, // creating planet for system
             149597870700, 0, Vectorld2d(0, 29999.99999999941)); // coordinates and speed of system
-        PlanetSystem* mars = new PlanetSystem(std::vector <Planet*> {
-            new Planet("Mars", 6.779e6, 6.4171e23, 0, 0, Vectorld2d(0, 0), sf::Color::Red, 6.779e6 / 2 * 100),
-                new Planet("Phobos", 2.25e4, 1.072e16, 9.3772e6, 0, Vectorld2d(2138.45, 0), sf::Color::Cyan, 2.25e4 / 2 * 100),
-                new Planet("Deimos", 1.24e4, 1.48e15, 2.3458e7, 0, Vectorld2d(1351.28, 0), sf::Color(100, 100, 100, 255), 1.24e4 / 2 * 100)},
+        PlanetSystem* mars = new PlanetSystem(std::vector <CosmicBody*> {
+            new CosmicBody(CosmicBodyType::PLANET, "Mars", 6.779e6, 6.4171e23, 0, 0, Vectorld2d(0, 0), sf::CircleShape(6.779e6 / 2 * 100)),
+                new CosmicBody(CosmicBodyType::SATELLITE, "Phobos", 2.25e4, 1.072e16, 9.3772e6, 0, Vectorld2d(2138.45, 0), sf::CircleShape(2.25e4 / 2 * 100)),
+                new CosmicBody(CosmicBodyType::SATELLITE, "Deimos", 1.24e4, 1.48e15, 2.3458e7, 0, Vectorld2d(1351.28, 0), sf::CircleShape(1.24e4 / 2 * 100))},
             2.2794382e11, 0, Vectorld2d(0, 24130));
-        PlanetSystem* jupiter = new PlanetSystem(std::vector<Planet*> {
-            new Planet("Jupiter", 69.911e6, 1.8986e27, 0, 0, Vectorld2d(0, 0), orange, 69.911e6 / 2 * 10),
-                new Planet("Io", 3.6426e4, 8.9319e22, 4.217e8, 0, Vectorld2d(0, 17334), sf::Color(50, 50, 50, 255), 3.6426e4 / 2 * 100),
-                new Planet("Europa", 3.1216e4, 4.8017e22, -6.711e8, 0, Vectorld2d(0, 13740), sf::Color(100, 150, 200, 255), 3.1216e4 / 2 * 100),
-                new Planet("Hanimedes", 5.2682e4, 1.4819e23, 1.0704e9, 0, Vectorld2d(0, 10880), sf::Color(0, 255, 65, 255), 5.2682e4 / 2 * 100),
-                new Planet("Kallisto", 4.8206e4, 1.075e23, -1.8827e9, 0, Vectorld2d(0, 8204), sf::Color(255, 0, 155, 255), 4.8206e4 / 2 * 100)},
+        PlanetSystem* jupiter = new PlanetSystem(std::vector<CosmicBody*> {
+            new CosmicBody(CosmicBodyType::PLANET, "Jupiter", 69.911e6, 1.8986e27, 0, 0, Vectorld2d(0, 0), sf::CircleShape(69.911e6 / 2 * 10)),
+                new CosmicBody(CosmicBodyType::SATELLITE, "Io", 3.6426e4, 8.9319e22, 4.217e8, 0, Vectorld2d(0, 17334), sf::CircleShape(3.6426e4 / 2 * 100)),
+                new CosmicBody(CosmicBodyType::SATELLITE, "Europa", 3.1216e4, 4.8017e22, -6.711e8, 0, Vectorld2d(0, 13740), sf::CircleShape(3.1216e4 / 2 * 100)),
+                new CosmicBody(CosmicBodyType::SATELLITE, "Hanimedes", 5.2682e4, 1.4819e23, 1.0704e9, 0, Vectorld2d(0, 10880), sf::CircleShape(5.2682e4 / 2 * 100)),
+                new CosmicBody(CosmicBodyType::SATELLITE, "Kallisto", 4.8206e4, 1.075e23, -1.8827e9, 0, Vectorld2d(0, 8204), sf::CircleShape(4.8206e4 / 2 * 100))},
             7.785472e11, 0, Vectorld2d(0, 13070));
         SolarSystem* sol = new SolarSystem(std::vector <PlanetSystem*> { sun, smercury, svenus, earth_moon, mars, jupiter },
             0, 0, Vectorld2d(0, 0));
@@ -90,7 +90,7 @@ int main()
         sf::Vector2i pointerPos;    // variable, that stores current mouse pointer position "in window" coords
         SolarSystem* focus_sol = nullptr; // followed solar system
         PlanetSystem* focus_system = nullptr; // followed planetary system
-        Planet* focus_planet = nullptr; // followed planet
+        CosmicBody* focus_planet = nullptr; // followed planet
         sf::RenderWindow window(sf::VideoMode(1280, 720), "Solar System");    // creating window 
         //window.setVerticalSyncEnabled(true);
         Camera* cam = new Camera({ float(sun->get_global_x()), float(sun->get_global_y()) }, sf::Vector2f(window.getSize())); //camera focuses on Sun
@@ -181,7 +181,7 @@ int main()
                 }
                 else
                     window.setView(cam->getView());
-                sol->draw_system(window);
+                sol->draw(window);
                 window.setView(cam->getUIView());
                 window.draw(info);
                 window.display();
@@ -196,7 +196,7 @@ int main()
                 }
                 else
                     window.setView(cam->getView());
-                sol->draw_system(window);
+                sol->draw(window);
                 window.setView(window.getDefaultView());
                 window.draw(info);
                 window.display();

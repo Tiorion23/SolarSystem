@@ -2,7 +2,7 @@
 
 ShapesManager::ShapesManager() {}
 
-void ShapesManager::add_shape(std::string& name, float radius, sf::Color color) {
+void ShapesManager::add_shape(const std::string& name, float radius, sf::Color color) {
 	this->shapes[name] = sf::CircleShape(radius);
 	this->shapes[name].setFillColor(color);
 	this->shapes[name].setOrigin(this->shapes[name].getRadius(), this->shapes[name].getRadius());

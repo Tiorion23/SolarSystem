@@ -1,5 +1,6 @@
-#pragma once
-#include "planet.h"
+#ifndef UTILITY
+#define UTILITY
+#include "CosmicBody.h"
 #include "PlanetSystem.h"
 #include <math.h>
 #include <string>
@@ -50,7 +51,7 @@ public:
 	static std::string timer(unsigned long long int time);
 
 	//info string, displays module of summary of gravity forces, its x- and y-components, speed of each planet in planet system
-	static std::string info(const std::vector<Planet*> &planets);
+	static std::string info(const std::vector<CosmicBody*> &planets);
 	//info string, displays module of summary of gravity forces, its x- and y-components, speed of each planet in planet system
 	static std::string info(const PlanetSystem& ps);
 
@@ -59,3 +60,4 @@ public:
 	static std::string info(const std::vector<PlanetSystem*>& psystems);
 };
 
+#endif

@@ -151,7 +151,7 @@ std::string utility::timer(unsigned long long int time) {
     return result;
 }
 
-std::string utility::info(const std::vector<Planet*> &planets) {
+std::string utility::info(const std::vector<CosmicBody*> &planets) {
     std::string result;
     std::stringstream myString;
     for  (const auto& a : planets) { // for each planet a in planets

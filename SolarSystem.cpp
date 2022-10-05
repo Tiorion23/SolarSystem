@@ -166,9 +166,9 @@ void SolarSystem::resize_shapes(float s) {
 		a->resize_shapes(s);
 }
 
-void SolarSystem::draw_system(sf::RenderWindow& w) {
+void SolarSystem::draw(sf::RenderWindow& w) {
 	for (const auto& a : systems) {
-		a->draw_system(w);
+		a->draw(w);
 	}
 }
 
