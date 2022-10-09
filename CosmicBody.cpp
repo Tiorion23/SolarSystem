@@ -10,6 +10,7 @@ std::string cosmic_body_type_to_str(CosmicBodyType type) {
 }
 
 CosmicBody::CosmicBody(CosmicBodyType tp, std::string nm, long double diam, long double m, long double xc, long double yc, Vectorld2d sp, sf::CircleShape shp): name(nm) {
+	type = tp;
 	diameter = diam;
 	mass = m;
 	coords = Vectorld2d(xc, yc);
@@ -31,6 +32,7 @@ CosmicBody::CosmicBody(CosmicBodyType tp, std::string nm, long double diam, long
 	///////////////// INTERFACE: GETTERS AND SETTERS /////////////////
 	//////////////////////////////////////////////////////////////////
 
+CosmicBodyType CosmicBody::get_type() { return type; }
 std::string CosmicBody::get_name() const { return name; }
 long double CosmicBody::get_diameter() { return diameter; }
 Vectorld2d CosmicBody::get_speed() const { return speed; }

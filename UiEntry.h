@@ -5,7 +5,6 @@
 class UiEntry
 {
 public:
-
     // Handles appearance of the entry
     sf::RectangleShape shape;
 

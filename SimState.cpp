@@ -13,19 +13,11 @@ SimState::SimState(Engine* engine) {
     sim_view.setCenter(this->sol->get_systems()[0]->get_global_coords().x, this->sol->get_systems()[0]->get_global_coords().y);
     sim_view.zoom(scale *= default_scale);
     action_state = ActionState::NONE;
+    simulation_state = SimulationState::RUNNING;
     time = 0;
-    simulation_speed = 12;
-    step = 60 * 12;
-    this->ui_system.emplace("timer", Ui(sf::Vector2f(this->engine->window.getSize().x - 64, 32), 4, true, engine->styles.at("panel"),
-        { std::make_pair(utility::timer(time), "timer")}));
-    this->ui_system.at("timer").setPosition(sf::Vector2f(0.f, this->engine->window.getSize().y - 32));
-    this->ui_system.at("timer").show();
-
-    this->ui_system.emplace("speed_controls", Ui(sf::Vector2f(32, 32), 4, true, engine->styles.at("button"),
-        { std::make_pair("+", "increase_sim_speed"),
-        std::make_pair("-", "decrease_sim_speed") }));
-    this->ui_system.at("speed_controls").setPosition(this->ui_system.at("timer").getSize().x, this->engine->window.getSize().y - 32);
-    this->ui_system.at("speed_controls").show();
+    simulation_speed.emplace(SimulationState::RUNNING, 1);
+    simulation_speed.emplace(SimulationState::PAUSED, 0);
+    initialize_ui();
 }
 
 SolarSystem* SimState::initialize_solar_system() {
@@ -58,32 +50,66 @@ SolarSystem* SimState::initialize_solar_system() {
         0, 0, Vectorld2d(0, 0));
     return sol;
 }
+
+void SimState::initialize_ui() {    // creating statically placed UI elements
+    this->static_ui_system.emplace("speed_controls", Ui(sf::Vector2f(32, 32), 4, true, engine->styles.at("button"),
+        { std::make_pair("+", "increase_sim_speed"),
+        std::make_pair("II", "pause/resume"),
+        std::make_pair("-", "decrease_sim_speed") }));
+    this->static_ui_system.at("speed_controls").setPosition(this->engine->window.getSize().x - this->static_ui_system.at("speed_controls").getSize().x, this->engine->window.getSize().y - 32);
+    this->static_ui_system.at("speed_controls").show();
+
+    this->static_ui_system.emplace("timer", 
+        Ui(sf::Vector2f(this->engine->window.getSize().x - this->static_ui_system.at("speed_controls").getSize().x, 32), 
+            4, true, engine->styles.at("panel"),
+        { std::make_pair(utility::timer(time), "timer") }));
+    this->static_ui_system.at("timer").setPosition(sf::Vector2f(0.f, this->engine->window.getSize().y - 32));
+    this->static_ui_system.at("timer").show();
+
+    this->static_ui_system.emplace("menu_button", Ui(sf::Vector2f(96, 32), 4, true, engine->styles.at("button"),
+        { std::make_pair("Menu", "menu_button") }));
+    this->static_ui_system.at("menu_button").setPosition(0, 0);
+    this->static_ui_system.at("menu_button").show();
+    // cycling through all planets in solar system to create corresponding nameplates
+    for (auto a : sol->get_systems())
+        for (auto b : a->get_planets()) {
+            this->dynamic_ui_system.emplace(b->get_name(), DynamicUi(2, engine->styles.at("nameplates"),
+                std::make_pair(b->get_name(), b->get_name())));
+            sf::Vector2i pos = this->engine->window.mapCoordsToPixel(sf::Vector2f(b->get_global_coords().x + b->get_diameter() / 2,
+                b->get_global_coords().y + b->get_diameter() / 2), sim_view);
+            this->dynamic_ui_system.at(b->get_name()).set_position(this->engine->window.mapPixelToCoords(pos, ui_view));
+            // hiding nameplates for satellites to lessen clutter
+            if (b->get_type() == CosmicBodyType::STAR || b->get_type() == CosmicBodyType::PLANET) {
+                this->dynamic_ui_system.at(b->get_name()).show();
+            }
+        }
+}
+
 void SimState::handle_input() {
     sf::Event event;
     pointerPos = sf::Mouse::getPosition(this->engine->window); //taking pointer position "in window" coordinates
-    while (this->engine->window.pollEvent(event))
-    {        
-        switch (event.type)
-        {
+    while (this->engine->window.pollEvent(event)) {        
+        switch (event.type) {
             // X button on window pressed, window closes
         case sf::Event::Closed:
             this->engine->window.close();  break;
             //window is resized
         case sf::Event::Resized: {
-            this->sim_view.setSize(event.size.width, event.size.height);
-            this->sim_view.zoom(scale);
-            this->ui_view.setSize(event.size.width, event.size.height);
-            sf::Vector2f pos = sf::Vector2f(0.f, event.size.height - 32);
-            //pos *= 0.f;    // calculating new window bottom left corner
+            this->sim_view.setSize(event.size.width, event.size.height);        // changing simulation view size to fit new window size
+            this->sim_view.zoom(scale);                                   // rescaling simulation view back to previous scale
+            this->ui_view.setSize(event.size.width, event.size.height);         // changing UI view size to fit new window size
+            sf::Vector2f pos = sf::Vector2f(0.f, event.size.height - 32);       // position of static UI elements in window coordinates
+            pos = this->engine->window.mapPixelToCoords(sf::Vector2i(pos), this->ui_view);  // translation to UI view coordinates
+            // resizing and putting UI elements to new positions
+            this->static_ui_system.at("timer").setDimensions(sf::Vector2f(event.size.width - this->static_ui_system.at("speed_controls").getSize().x, 32));
+            this->static_ui_system.at("timer").setPosition(pos);
+            this->static_ui_system.at("timer").show();
+            pos = sf::Vector2f(this->static_ui_system.at("timer").getSize().x, event.size.height - 32);
             pos = this->engine->window.mapPixelToCoords(sf::Vector2i(pos), this->ui_view);
-            this->ui_system.at("timer").setDimensions(sf::Vector2f(event.size.width - this->ui_system.at("speed_controls").getSize().x, 32));
-            this->ui_system.at("timer").setPosition(pos);
-            this->ui_system.at("timer").show();
-            pos = sf::Vector2f(this->ui_system.at("timer").getSize().x, event.size.height - 32);
-            pos = this->engine->window.mapPixelToCoords(sf::Vector2i(pos), this->ui_view);
-            this->ui_system.at("speed_controls").setPosition(pos);
-            this->ui_system.at("speed_controls").show();
-            break; }
+            this->static_ui_system.at("speed_controls").setPosition(pos);
+            this->static_ui_system.at("speed_controls").show();
+            break; 
+        }
         case sf::Event::MouseWheelScrolled: // zoom in and out by mousewheel
             if (event.mouseWheelScroll.delta > 0) { //wheel up - zoom in
                 this->sim_view.zoom(0.8);
@@ -94,51 +120,94 @@ void SimState::handle_input() {
                 scale *= 1.2;
             }
             break;
-        case sf::Event::MouseButtonPressed:
+        case sf::Event::MouseButtonPressed:     // handler for LMB click, first go through all UI elements to check if they are clicked
             if (event.mouseButton.button == sf::Mouse::Left) {
-                std::string msg = this->ui_system.at("speed_controls").activate(this->engine->window.mapPixelToCoords(pointerPos, this->ui_view));
+                std::string msg = this->static_ui_system.at("speed_controls").activate(this->engine->window.mapPixelToCoords(pointerPos, this->ui_view));
                 if (msg != "null") {
-                    if (msg == "increase_sim_speed" && simulation_speed != 24) {
-                        simulation_speed += 1;
-                        std::cout << "simulation_speed = " << simulation_speed << "\n";
+                    if (msg == "increase_sim_speed" && simulation_speed.at(SimulationState::RUNNING) != 24) {
+                        simulation_speed.at(SimulationState::RUNNING) += 1;
+                        std::cout << "simulation_speed = " << simulation_speed.at(SimulationState::RUNNING) << "\n";
                         break;
-                    }                        
-                    if (msg == "decrease_sim_speed" && simulation_speed != 1) {
-                        simulation_speed -= 1;
-                        std::cout << "simulation_speed = " << simulation_speed << "\n";
+                    }
+                    if (msg == "decrease_sim_speed" && simulation_speed.at(SimulationState::RUNNING) != 1) {
+                        simulation_speed.at(SimulationState::RUNNING) -= 1;
+                        std::cout << "simulation_speed = " << simulation_speed.at(SimulationState::RUNNING) << "\n";
                         break;
-                    }                        
+                    }
+                    if (msg == "pause/resume" && simulation_state == SimulationState::RUNNING) {
+                        simulation_state = SimulationState::PAUSED;
+                        this->static_ui_system.at("speed_controls").
+                            setEntryText(this->static_ui_system.at("speed_controls").
+                                getEntry(this->engine->window.mapPixelToCoords(pointerPos, this->ui_view)), "I>");
+                        std::cout << "simulation paused\n";
+                        break;
+                    }
+                    if (msg == "pause/resume" && simulation_state == SimulationState::PAUSED) {
+                        simulation_state = SimulationState::RUNNING;
+                        this->static_ui_system.at("speed_controls").
+                            setEntryText(this->static_ui_system.at("speed_controls").
+                                getEntry(this->engine->window.mapPixelToCoords(pointerPos, this->ui_view)), "II");
+                        std::cout << "simulation resumed\n";
+                        break;
+                    }
                 }
-                if (!(action_state == ActionState::PANNING)) { //working camera moving code
-                    action_state = ActionState::PANNING;
-                    //std::cout << "camera is moving" << " x0 = " << pointerPos.x << " y0 = " << pointerPos.y << "\n";
-                    oldPos = pointerPos;
+                msg = this->static_ui_system.at("menu_button").activate(this->engine->window.mapPixelToCoords(pointerPos, this->ui_view));
+                if (msg != "null") {
+                    if (msg == "menu_button") {
+                        go_to_pause();
+                        break;
+                    }
+                }
+                for (auto a : sol->get_systems()) {
+                    for (auto b : a->get_planets()) {
+                        if (this->dynamic_ui_system.at(b->get_name()).isMouseOver(this->engine->window.mapPixelToCoords(pointerPos, this->ui_view))) {
+                            msg = this->dynamic_ui_system.at(b->get_name()).activate(this->engine->window.mapPixelToCoords(pointerPos, this->ui_view));
+                            action_state = ActionState::FOCUSED;
+                            focus = b;
+                            std::cout << "focused on " << focus->get_name() << "\n";
+                            break;
+                        }
+                    }
+                }                        
+                if (msg == "null") {    // if none of interface elements are clicked
+                    if (!(action_state == ActionState::PANNING)) {  // if camera is not moving by mouse
+                        if (action_state == ActionState::FOCUSED) { // in case of camera focused on some planet
+                            action_state = ActionState::PANNING;    // changing from focus to regular camera moving
+                            //std::cout << "Stopped focusing on " << focus->get_name() << "\n";
+                            focus = nullptr;                        // clearing focus
+                            //std::cout << "camera is moving" << " x0 = " << pointerPos.x << " y0 = " << pointerPos.y << "\n";
+                            oldPos = pointerPos;
+                            break;
+                        }   // if camera si not focused 
+                        action_state = ActionState::PANNING;    // just move camera
+                        //std::cout << "camera is moving" << " x0 = " << pointerPos.x << " y0 = " << pointerPos.y << "\n";
+                        oldPos = pointerPos;
+                        break;
+                    }
+                }
+            }            
+        case sf::Event::MouseButtonReleased: // mouse button released, map can't be moved now
+            if (event.mouseButton.button == sf::Mouse::Left)
+            {
+                if (action_state == ActionState::PANNING) {
+                    action_state = ActionState::NONE;
+                    //std::cout << "camera stopped moving = " << " x1 = " << oldPos.x << " y1 = " << oldPos.y << "\n";
                     break;
                 }
             }
-            
-        case sf::Event::MouseButtonReleased: // mouse button released, map cant be moved now
-            if (event.mouseButton.button == 0)
-            {
-                action_state = ActionState::NONE;
-                //std::cout << "camera stopped moving = " << " x1 = " << oldPos.x << " y1 = " << oldPos.y << "\n";
-            }
             break;
         case sf::Event::MouseMoved: { 
-            if (action_state == ActionState::NONE) { //if mouse button isnt pressed (camera isnt moving) highlight interface buttons
-                this->ui_system.at("speed_controls").highlight(this->ui_system.at("speed_controls").
+            if (action_state != ActionState::PANNING) { //if mouse button isnt pressed (camera isnt moving) highlight interface buttons
+                this->static_ui_system.at("speed_controls").highlight(this->static_ui_system.at("speed_controls").
                     getEntry(this->engine->window.mapPixelToCoords(pointerPos, this->ui_view)));
+                this->static_ui_system.at("menu_button").highlight(this->static_ui_system.at("menu_button").
+                    getEntry(this->engine->window.mapPixelToCoords(pointerPos, this->ui_view)));
+                for (auto a: sol->get_systems())    // or planet nameplates for focus
+                    for (auto b : a->get_planets()) {
+                        this->dynamic_ui_system.at(b->get_name()).highlight(this->dynamic_ui_system.at(b->get_name()).isMouseOver(this->engine->window.mapPixelToCoords(pointerPos, this->ui_view)));
+                    }
                 break;
             }
-            //if (!(action_state == ActionState::PANNING)) { //if mouse button isnt pressed (camera isnt moving) do nothing
-            //       /* const sf::Vector2i newPos = sf::Vector2i(event.mouseMove.x, event.mouseMove.y);  //debugging code
-            //        for (const auto& ps : sol->get_systems()) {
-            //            for (const auto& p: ps->get_planets())
-            //                std::cout << "x=" << window.mapPixelToCoords(newPos).x << " y=" << window.mapPixelToCoords(newPos).y << " mouseover=" << ps->is_clicked(window.mapPixelToCoords(newPos)) << '\n';
-            //        }*/                
-            //    break;
-            //}
-            //if mouse button pressed map cn be moved
             //defining pointer position "in window" coordinates
             const sf::Vector2i newPos = sf::Vector2i(event.mouseMove.x, event.mouseMove.y);
             sf::Vector2i delta = oldPos - newPos;   //calculating difference between old and new positions of pointer
@@ -152,6 +221,7 @@ void SimState::handle_input() {
             {
                 this->engine->window.close();
             }
+            // moving camera with arrow keys
             if (sf::Keyboard::isKeyPressed(sf::Keyboard::Up)) {
                 sim_view.move(-1.f * sf::Vector2f(0, 5 * default_scale * scale));
             }
@@ -170,20 +240,55 @@ void SimState::handle_input() {
     }
 }
 
-void SimState::update(const float dt) {
-    step = simulation_speed * dt * 3600;
-    this->sol->simulate(step);
+void SimState::update_simulation(const float dt) {
+    step = simulation_speed.at(simulation_state) * dt * 3600;
+    this->sol->simulate(step);      
     time += step;
-    ui_system.at("timer").setEntryText(0, utility::timer(time));
+    // T0D0: 
+    // 1. possibly create separate class that handles simulation;
+    // 2. multithreaded simulation, broken down into two steps, so coordinates of objects don't change during gravity calculations:
+    //  - calculating accelerations and speeds of all cosmic bodies;
+    //  - moving all cosmic bodies;
     return;
 }
 
+void SimState::update_ui() {
+    static_ui_system.at("timer").setEntryText(0, utility::timer(time)); // changes elapsed simulated time
+    for (auto a : sol->get_systems())   // cycles through all planets nad puts corresponding nameplates near them
+        for (auto b : a->get_planets()) {
+            sf::Vector2i pos = this->engine->window.mapCoordsToPixel(sf::Vector2f(b->get_global_coords().x + (b->get_diameter() / 2 * sin(PI / 4)),
+                b->get_global_coords().y + b->get_diameter() / 2 * sin(PI / 4)), sim_view);
+            this->dynamic_ui_system.at(b->get_name()).set_position(this->engine->window.mapPixelToCoords(pos, ui_view));
+        }
+}
+
+void SimState::update(const float dt) {
+    update_simulation(dt);
+    update_ui();
+}
+
 void SimState::draw(const float dt) {
+    if (action_state == ActionState::FOCUSED) {     // if camera is focused on planet moves view center to it
+        this->engine->window.clear(sf::Color::Black);
+        sim_view.setCenter(sf::Vector2f(focus->get_global_x(), focus->get_global_y()));
+        this->engine->window.setView(this->sim_view);
+        this->sol->draw(this->engine->window);
+        this->engine->window.setView(this->ui_view);
+        for (auto ui : this->static_ui_system)
+            this->engine->window.draw(ui.second);
+        for (auto dyn_ui : this->dynamic_ui_system)
+            dyn_ui.second.draw(this->engine->window);
+    }
     this->engine->window.clear(sf::Color::Black);
     this->engine->window.setView(this->sim_view);
     this->sol->draw(this->engine->window);
     this->engine->window.setView(this->ui_view);
-    for (auto ui : this->ui_system)
+    for (auto ui : this->static_ui_system)
         this->engine->window.draw(ui.second);
-    //this->engine->window.draw(this->game->background);
+    for (auto dyn_ui : this->dynamic_ui_system)
+        dyn_ui.second.draw(this->engine->window);
+}
+
+void SimState::go_to_pause() {
+    this->engine->push_state(new PauseMenuState(this->engine));
 }

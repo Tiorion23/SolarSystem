@@ -35,7 +35,7 @@ public:
     void change_state(State* state);
     //returns whatever state is on top of state stack
     State* peek_state();
-    //creates shapes
+    //creates shapes (T0D0: some way for shape creation that is connected to objects in simulation and not by hand, but automatically)
     void create_shapes();
 
     //starts engines's working cycle

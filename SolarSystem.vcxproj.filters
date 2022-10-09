@@ -57,6 +57,12 @@
     <ClCompile Include="ShapesManager.cpp">
       <Filter>Исходные файлы</Filter>
     </ClCompile>
+    <ClCompile Include="DynamicUi.cpp">
+      <Filter>Исходные файлы</Filter>
+    </ClCompile>
+    <ClCompile Include="PauseMenuState.cpp">
+      <Filter>Исходные файлы</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="resource.h">
@@ -108,6 +114,12 @@
       <Filter>Файлы заголовков</Filter>
     </ClInclude>
     <ClInclude Include="UiEntry.h">
+      <Filter>Файлы заголовков</Filter>
+    </ClInclude>
+    <ClInclude Include="DynamicUi.h">
+      <Filter>Файлы заголовков</Filter>
+    </ClInclude>
+    <ClInclude Include="PauseMenuState.h">
       <Filter>Файлы заголовков</Filter>
     </ClInclude>
   </ItemGroup>

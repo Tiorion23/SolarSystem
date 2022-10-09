@@ -1,7 +1,7 @@
 #ifndef  UI_STYLE
 #define UI_STYLE
 #include <SFML/Graphics.hpp>
-
+// UI style class contains fonts and colors of UI
 class UiStyle
 {
 public:

@@ -3,6 +3,7 @@
 #include "Engine.h"
 
 class Engine;
+// abstract state class
 class State
 {
 

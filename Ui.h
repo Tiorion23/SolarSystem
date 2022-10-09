@@ -19,7 +19,12 @@ public:
 
     bool visible;
 
-    // Constructor
+    // Constructor: 
+    // dimensions - size of UI element;
+    // padding - distance between text and borders to prevent overlapping;
+    // horizontal - true if UI elements are horizontally aligned;
+    // style - UI style of elements;
+    // entries - pair of strings, first is text displayed on UI entry, second - message, that entry returns
     Ui(sf::Vector2f dimensions, int padding, bool horizontal, UiStyle& style, std::vector<std::pair<std::string, std::string>> entries);
 
     // Returns the total dimensions of the UI as sum of its elements

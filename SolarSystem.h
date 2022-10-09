@@ -85,7 +85,7 @@ public:
 	// updates position of bounding volume based on current global coordinates
 	void update_bounding_volume();
 
-	//checks if solar system is clicked
+	//checks if solar system is clicked by its bounding volume
 	bool is_clicked(sf::Vector2f pointer);
 
 	//resizes shapes of all planets in solar system
