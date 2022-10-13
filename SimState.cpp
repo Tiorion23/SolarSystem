@@ -108,6 +108,10 @@ void SimState::handle_input() {
             pos = this->engine->window.mapPixelToCoords(sf::Vector2i(pos), this->ui_view);
             this->static_ui_system.at("speed_controls").setPosition(pos);
             this->static_ui_system.at("speed_controls").show();
+            pos = sf::Vector2f(0.f, 0.f);
+            pos = this->engine->window.mapPixelToCoords(sf::Vector2i(pos), this->ui_view);
+            this->static_ui_system.at("menu_button").setPosition(pos);
+            this->static_ui_system.at("menu_button").show();
             break; 
         }
         case sf::Event::MouseWheelScrolled: // zoom in and out by mousewheel
@@ -264,21 +268,12 @@ void SimState::update_ui() {
 
 void SimState::update(const float dt) {
     update_simulation(dt);
-    update_ui();
+    if (action_state == ActionState::FOCUSED)      // if camera is focused on planet moves view center to it
+        sim_view.setCenter(sf::Vector2f(focus->get_global_x(), focus->get_global_y()));
+    update_ui();    
 }
 
 void SimState::draw(const float dt) {
-    if (action_state == ActionState::FOCUSED) {     // if camera is focused on planet moves view center to it
-        this->engine->window.clear(sf::Color::Black);
-        sim_view.setCenter(sf::Vector2f(focus->get_global_x(), focus->get_global_y()));
-        this->engine->window.setView(this->sim_view);
-        this->sol->draw(this->engine->window);
-        this->engine->window.setView(this->ui_view);
-        for (auto ui : this->static_ui_system)
-            this->engine->window.draw(ui.second);
-        for (auto dyn_ui : this->dynamic_ui_system)
-            dyn_ui.second.draw(this->engine->window);
-    }
     this->engine->window.clear(sf::Color::Black);
     this->engine->window.setView(this->sim_view);
     this->sol->draw(this->engine->window);

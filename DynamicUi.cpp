@@ -20,7 +20,7 @@ DynamicUi::DynamicUi(int padding, UiStyle& style, std::pair<std::string, std::st
 	text.setCharacterSize(20);
 	sf::FloatRect rect = text.getGlobalBounds();
 	// changing shape size to fit text size
-	this->dimensions = sf::Vector2f(rect.width + padding * 2, rect.height + padding * 2);
+	this->dimensions = sf::Vector2f(rect.width + (padding + style.borderSize) * 2, rect.height + (padding + style.borderSize) * 2);
 	shape.setSize(dimensions);
 	// construct entry
 	this->entry = UiEntry(entry.second, shape, text);
