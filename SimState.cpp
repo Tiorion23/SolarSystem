@@ -20,6 +20,15 @@ SimState::SimState(Engine* engine) {
     initialize_ui();
 }
 
+SimState::~SimState() {
+    for (auto a : sol->get_systems()) {
+        for (auto b : a->get_planets())
+            delete b;
+        delete a;
+    }
+    delete sol;
+}
+
 SolarSystem* SimState::initialize_solar_system() {
     PlanetSystem* sun = new PlanetSystem(std::vector<CosmicBody*> {
         new CosmicBody(CosmicBodyType::STAR, "Sun", 1.392e9, 1.989e30, 0, 0, Vectorld2d(0, 0), this->engine->graphics_handler.get_shapes_manager().get_shape("Sun"))}, // creating planet for system 
@@ -257,8 +266,8 @@ void SimState::update_simulation(const float dt) {
 }
 
 void SimState::update_ui() {
-    static_ui_system.at("timer").setEntryText(0, utility::timer(time)); // changes elapsed simulated time
-    for (auto a : sol->get_systems())   // cycles through all planets nad puts corresponding nameplates near them
+    static_ui_system.at("timer").setEntryText(0, utility::timer(time)); // changes elapsed simulated time on timer bar
+    for (auto a : sol->get_systems())   // cycles through all planets and puts corresponding nameplates near them
         for (auto b : a->get_planets()) {
             sf::Vector2i pos = this->engine->window.mapCoordsToPixel(sf::Vector2f(b->get_global_coords().x + (b->get_diameter() / 2 * sin(PI / 4)),
                 b->get_global_coords().y + b->get_diameter() / 2 * sin(PI / 4)), sim_view);

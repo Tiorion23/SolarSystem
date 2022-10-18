@@ -31,7 +31,9 @@ class SimState : public State
 	unsigned long long int time;	// number of simulated seconds
 	int step;						// simulation time-step
 	// contains simulation speed in hours per second for simulation (can be changed) and paused state (always 0)
-	std::map<SimulationState, int> simulation_speed;	
+	std::map<SimulationState, int> simulation_speed;
+
+	~SimState();
 
 	// functions called once in constructor
 	// creates all objects in solar system

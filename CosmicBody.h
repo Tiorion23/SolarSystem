@@ -18,7 +18,7 @@ std::string cosmic_body_type_to_str(CosmicBodyType type);
 class CosmicBody
 {
 	//physical parameters
-	CosmicBodyType type;		// type of cosmic body, not const because eventually after collision realization boies can change types
+	CosmicBodyType type;		// type of cosmic body, not const, because eventually after collision realization bodies will be able to change types
 	const std::string name;
 	long double diameter;		// diameter of planet
 	long double mass;			// mass of planet
