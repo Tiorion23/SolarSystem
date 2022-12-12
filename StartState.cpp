@@ -5,7 +5,7 @@ StartState::StartState(Engine* engine) {
 	sf::Vector2f pos = sf::Vector2f(this->engine->window.getSize());
 	view.setSize(pos);
 	view.setCenter(pos * 0.5f);
-    this->ui_system.emplace("menu", Ui(sf::Vector2f(192, 32), 4, false, engine->styles.at("button"),
+    this->ui_system.emplace("menu", Ui(sf::Vector2f(192, 32), 4, false, true, engine->styles.at("button"),
         { std::make_pair("Start simulation", "start_simulation"),
         std::make_pair("Exit","exit")}));
 

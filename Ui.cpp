@@ -1,7 +1,7 @@
 #include "Ui.h"
 
-Ui::Ui(sf::Vector2f dimensions, int padding, bool horizontal,
-    UiStyle& style, std::vector<std::pair<std::string, std::string>> entries) {
+Ui::Ui(sf::Vector2f dimensions, int padding, bool horizontal, bool highlightable,
+    UiStyle& style, std::vector<std::pair<std::string, std::string>> entries): highlightable(highlightable) {
     visible = false;
     this->horizontal = horizontal;
     this->style = style;
@@ -114,6 +114,10 @@ void Ui::show()
 void Ui::hide()
 {
     this->visible = false;
+}
+
+bool Ui::is_highlightable() const{
+    return highlightable;
 }
 
 void Ui::highlight(const int entry)

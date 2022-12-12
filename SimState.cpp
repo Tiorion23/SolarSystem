@@ -1,97 +1,79 @@
 #include "SimState.h"
 
 SimState::SimState(Engine* engine) {
-	this->engine = engine;
-    this->engine->create_shapes();
-	sf::Vector2f pos = sf::Vector2f(this->engine->window.getSize());
-	sim_view.setSize(pos);
-	ui_view.setSize(pos);
-	ui_view.setCenter(pos * 0.5f);    
-    default_scale = 100000000.f;
-    scale = 1.f;
-    sol = initialize_solar_system();    
-    sim_view.setCenter(this->sol->get_systems()[0]->get_global_coords().x, this->sol->get_systems()[0]->get_global_coords().y);
-    sim_view.zoom(scale *= default_scale);
+    this->engine = engine;
+    //this->engine->create_shapes();
+    sf::Vector2f pos = sf::Vector2f(this->engine->window.getSize());
+    this->camera = new Camera(pos);
+    this->galactic_factory = GalacticFactory::get_instance(engine);
+    this->simulation = new Simulation();
+    this->simulation->set_galaxy(this->galactic_factory->create_galaxy(std::vector<SolarSystem*> {this->galactic_factory->initialize_solar_system()}));
+    this->camera->world_view.setCenter(this->simulation->get_galaxy()->get_solar_systems()[0]->get_coords().x, this->simulation->get_galaxy()->get_solar_systems()[0]->get_coords().y);
+    this->camera->world_view.zoom(this->camera->world_display_scale *= this->camera->default_world_display_scale);
     action_state = ActionState::NONE;
-    simulation_state = SimulationState::RUNNING;
-    time = 0;
-    simulation_speed.emplace(SimulationState::RUNNING, 1);
-    simulation_speed.emplace(SimulationState::PAUSED, 0);
+    focus_type = FocusType::NONE;
     initialize_ui();
 }
 
 SimState::~SimState() {
-    for (auto a : sol->get_systems()) {
-        for (auto b : a->get_planets())
-            delete b;
-        delete a;
-    }
-    delete sol;
-}
-
-SolarSystem* SimState::initialize_solar_system() {
-    PlanetSystem* sun = new PlanetSystem(std::vector<CosmicBody*> {
-        new CosmicBody(CosmicBodyType::STAR, "Sun", 1.392e9, 1.989e30, 0, 0, Vectorld2d(0, 0), this->engine->graphics_handler.get_shapes_manager().get_shape("Sun"))}, // creating planet for system 
-        0, 0, Vectorld2d(0, 0)); // coordinates and speed of system
-    PlanetSystem* smercury = new PlanetSystem(std::vector<CosmicBody*> {
-        new CosmicBody(CosmicBodyType::PLANET, "Mercury", 4.8794e6, 3.33022e23, 0, 0, Vectorld2d(0, 0), this->engine->graphics_handler.get_shapes_manager().get_shape("Mercury"))},// creating planet for system
-        -5.7909227e10, 0, Vectorld2d(0, -47360)); // coordinates and speed of system
-    PlanetSystem* svenus = new PlanetSystem(std::vector<CosmicBody*> {
-        new CosmicBody(CosmicBodyType::PLANET, "Venus", 1.21036e7, 4.8675e24, 0, 0, Vectorld2d(0, 0), this->engine->graphics_handler.get_shapes_manager().get_shape("Venus"))}, // creating planet for system
-        -1.08942109e11, 0, Vectorld2d(0, -35020)); // coordinates and speed of system
-    PlanetSystem* earth_moon = new PlanetSystem(std::vector<CosmicBody*> {
-        new CosmicBody(CosmicBodyType::PLANET, "Earth", 1.2742e7, 5.972e24, 0, 0, Vectorld2d(0, 0), this->engine->graphics_handler.get_shapes_manager().get_shape("Earth")), // creating planet for system
-            new CosmicBody(CosmicBodyType::SATELLITE, "Moon", 3.47628e6, 7.3477e22, 4.067e8, 0, Vectorld2d(0, 1023), this->engine->graphics_handler.get_shapes_manager().get_shape("Moon"))}, // creating planet for system
-        1.495978707e11, 0, Vectorld2d(0, 29999.99999999941)); // coordinates and speed of system
-    PlanetSystem* mars = new PlanetSystem(std::vector <CosmicBody*> {
-        new CosmicBody(CosmicBodyType::PLANET, "Mars", 6.779e6, 6.4171e23, 0, 0, Vectorld2d(0, 0), this->engine->graphics_handler.get_shapes_manager().get_shape("Mars")),
-            new CosmicBody(CosmicBodyType::SATELLITE, "Phobos", 2.25e4, 1.072e16, 9.3772e6, 0, Vectorld2d(0, 2138.45), this->engine->graphics_handler.get_shapes_manager().get_shape("Phobos")),
-            new CosmicBody(CosmicBodyType::SATELLITE, "Deimos", 1.24e4, 1.48e15, 2.3458e7, 0, Vectorld2d(0, 1351.28), this->engine->graphics_handler.get_shapes_manager().get_shape("Deimos"))},
-        2.2794382e11, 0, Vectorld2d(0, 24130));
-    PlanetSystem* jupiter = new PlanetSystem(std::vector<CosmicBody*> {
-        new CosmicBody(CosmicBodyType::PLANET, "Jupiter", 69.911e6, 1.8986e27, 0, 0, Vectorld2d(0, 0), this->engine->graphics_handler.get_shapes_manager().get_shape("Jupiter")),
-            new CosmicBody(CosmicBodyType::SATELLITE, "Io", 3.6426e4, 8.9319e22, 4.217e8, 0, Vectorld2d(0, 17334), this->engine->graphics_handler.get_shapes_manager().get_shape("Io")),
-            new CosmicBody(CosmicBodyType::SATELLITE, "Europa", 3.1216e4, 4.8017e22, -6.711e8, 0, Vectorld2d(0, 13740), this->engine->graphics_handler.get_shapes_manager().get_shape("Europa")),
-            new CosmicBody(CosmicBodyType::SATELLITE, "Hanimedes", 5.2682e4, 1.4819e23, 1.0704e9, 0, Vectorld2d(0, 10880), this->engine->graphics_handler.get_shapes_manager().get_shape("Hanimedes")),
-            new CosmicBody(CosmicBodyType::SATELLITE, "Kallisto", 4.8206e4, 1.075e23, -1.8827e9, 0, Vectorld2d(0, 8204), this->engine->graphics_handler.get_shapes_manager().get_shape("Kallisto"))},
-        7.785472e11, 0, Vectorld2d(0, 13070));
-    SolarSystem* sol = new SolarSystem(std::vector <PlanetSystem*> { sun, smercury, svenus, earth_moon, mars, jupiter },
-        0, 0, Vectorld2d(0, 0));
-    return sol;
+    delete simulation;
+    delete camera;
 }
 
 void SimState::initialize_ui() {    // creating statically placed UI elements
-    this->static_ui_system.emplace("speed_controls", Ui(sf::Vector2f(32, 32), 4, true, engine->styles.at("button"),
+    this->static_ui_system.emplace("speed_controls", Ui(sf::Vector2f(32, 32), 4, true, true, engine->styles.at("button"),
         { std::make_pair("+", "increase_sim_speed"),
-        std::make_pair("II", "pause/resume"),
+        std::make_pair((this->simulation->get_simulation_state() == SimulationState::RUNNING) ? "II" : "I>", "pause/resume"),
         std::make_pair("-", "decrease_sim_speed") }));
     this->static_ui_system.at("speed_controls").setPosition(this->engine->window.getSize().x - this->static_ui_system.at("speed_controls").getSize().x, this->engine->window.getSize().y - 32);
     this->static_ui_system.at("speed_controls").show();
+    this->static_ui_system.emplace("focus_tree",
+        Ui(sf::Vector2f(230.75, 32), 4, true, true, engine->styles.at("button"),
+            { std::make_pair("Galaxy", "galaxy"),
+            std::make_pair((focus_solar_system != nullptr) ? (focus_solar_system->get_name()) : "", "focus_solar_system"),
+            std::make_pair((focus_ps != nullptr) ? (focus_solar_system->get_name()) : "", "focus_planet_system"),
+            std::make_pair((focus_body != nullptr) ? (focus_body->get_name()) : "","focus_planet") }));
+    this->static_ui_system.at("focus_tree").setPosition(260, this->engine->window.getSize().y - 32);
+    this->static_ui_system.at("focus_tree").show();
 
     this->static_ui_system.emplace("timer", 
         Ui(sf::Vector2f(this->engine->window.getSize().x - this->static_ui_system.at("speed_controls").getSize().x, 32), 
-            4, true, engine->styles.at("panel"),
-        { std::make_pair(utility::timer(time), "timer") }));
+            4, true, false, engine->styles.at("panel"),
+        { std::make_pair(utility::timer(this->simulation->get_time()), "timer") }));
     this->static_ui_system.at("timer").setPosition(sf::Vector2f(0.f, this->engine->window.getSize().y - 32));
     this->static_ui_system.at("timer").show();
 
-    this->static_ui_system.emplace("menu_button", Ui(sf::Vector2f(96, 32), 4, true, engine->styles.at("button"),
+    this->static_ui_system.emplace("menu_button", Ui(sf::Vector2f(96, 32), 4, true, true, engine->styles.at("button"),
         { std::make_pair("Menu", "menu_button") }));
     this->static_ui_system.at("menu_button").setPosition(0, 0);
     this->static_ui_system.at("menu_button").show();
-    // cycling through all planets in solar system to create corresponding nameplates
-    for (auto a : sol->get_systems())
-        for (auto b : a->get_planets()) {
-            this->dynamic_ui_system.emplace(b->get_name(), DynamicUi(2, engine->styles.at("nameplates"),
+    // cycling through all solar systems, planetary systems and planets in galaxy to create corresponding nameplates
+    for (auto a : this->simulation->get_galaxy()->get_solar_systems()) {
+        this->dynamic_ui_system.emplace(a, DynamicUi(2, engine->styles.at("nameplates"), // creating nameplates for solar systems
+            std::make_pair(a->get_name(), a->get_name())));
+        // positioning them in the center of solar system
+        sf::Vector2i pos = this->engine->window.mapCoordsToPixel(sf::Vector2f(a->get_coords().x, 
+            a->get_coords().y), this->camera->world_view);
+        this->dynamic_ui_system.at(a).set_position(this->engine->window.mapPixelToCoords(pos, this->camera->ui_view));
+        // making them visible
+        this->dynamic_ui_system.at(a).show();
+        for (auto b : a->get_systems()) {
+            this->dynamic_ui_system.emplace(b, DynamicUi(2, engine->styles.at("nameplates"), // creating nameplastes for planet systems
                 std::make_pair(b->get_name(), b->get_name())));
-            sf::Vector2i pos = this->engine->window.mapCoordsToPixel(sf::Vector2f(b->get_global_coords().x + b->get_diameter() / 2,
-                b->get_global_coords().y + b->get_diameter() / 2), sim_view);
-            this->dynamic_ui_system.at(b->get_name()).set_position(this->engine->window.mapPixelToCoords(pos, ui_view));
-            // hiding nameplates for satellites to lessen clutter
-            if (b->get_type() == CosmicBodyType::STAR || b->get_type() == CosmicBodyType::PLANET) {
-                this->dynamic_ui_system.at(b->get_name()).show();
+            sf::Vector2i pos = this->engine->window.mapCoordsToPixel(sf::Vector2f(b->get_global_coords().x,
+                b->get_global_coords().y), this->camera->world_view);
+            this->dynamic_ui_system.at(b).set_position(this->engine->window.mapPixelToCoords(pos, this->camera->ui_view));
+            // positioning them in the center of corresponding planet system
+            for (auto c : b->get_planets()) {
+                this->dynamic_ui_system.emplace(c, DynamicUi(2, engine->styles.at("nameplates"), // creating nameplates for planets, satellites etc
+                    std::make_pair(c->get_name(), c->get_name())));
+                sf::Vector2i pos = this->engine->window.mapCoordsToPixel(sf::Vector2f(c->get_global_coords().x + c->get_diameter() / 2,
+                    c->get_global_coords().y + c->get_diameter() / 2), this->camera->world_view);
+                this->dynamic_ui_system.at(c).set_position(this->engine->window.mapPixelToCoords(pos, this->camera->ui_view));
+                // positioning them down right from center of planet
             }
         }
+    }
 }
 
 void SimState::handle_input() {
@@ -104,148 +86,183 @@ void SimState::handle_input() {
             this->engine->window.close();  break;
             //window is resized
         case sf::Event::Resized: {
-            this->sim_view.setSize(event.size.width, event.size.height);        // changing simulation view size to fit new window size
-            this->sim_view.zoom(scale);                                   // rescaling simulation view back to previous scale
-            this->ui_view.setSize(event.size.width, event.size.height);         // changing UI view size to fit new window size
+            this->camera->resize(event.size.width, event.size.height);
             sf::Vector2f pos = sf::Vector2f(0.f, event.size.height - 32);       // position of static UI elements in window coordinates
-            pos = this->engine->window.mapPixelToCoords(sf::Vector2i(pos), this->ui_view);  // translation to UI view coordinates
+            pos = this->engine->window.mapPixelToCoords(sf::Vector2i(pos), this->camera->ui_view);  // translation to UI view coordinates
             // resizing and putting UI elements to new positions
             this->static_ui_system.at("timer").setDimensions(sf::Vector2f(event.size.width - this->static_ui_system.at("speed_controls").getSize().x, 32));
             this->static_ui_system.at("timer").setPosition(pos);
             this->static_ui_system.at("timer").show();
             pos = sf::Vector2f(this->static_ui_system.at("timer").getSize().x, event.size.height - 32);
-            pos = this->engine->window.mapPixelToCoords(sf::Vector2i(pos), this->ui_view);
+            pos = this->engine->window.mapPixelToCoords(sf::Vector2i(pos), this->camera->ui_view);
             this->static_ui_system.at("speed_controls").setPosition(pos);
             this->static_ui_system.at("speed_controls").show();
+            pos = sf::Vector2f(260, event.size.height - 32);
+            pos = this->engine->window.mapPixelToCoords(sf::Vector2i(pos), this->camera->ui_view);
+            this->static_ui_system.at("focus_tree").setPosition(pos);
+            this->static_ui_system.at("focus_tree").show();
             pos = sf::Vector2f(0.f, 0.f);
-            pos = this->engine->window.mapPixelToCoords(sf::Vector2i(pos), this->ui_view);
+            pos = this->engine->window.mapPixelToCoords(sf::Vector2i(pos), this->camera->ui_view);
             this->static_ui_system.at("menu_button").setPosition(pos);
             this->static_ui_system.at("menu_button").show();
             break; 
         }
         case sf::Event::MouseWheelScrolled: // zoom in and out by mousewheel
             if (event.mouseWheelScroll.delta > 0) { //wheel up - zoom in
-                this->sim_view.zoom(0.8);
-                scale *= 0.8;
+                this->camera->zoom();
             }
             else if (event.mouseWheelScroll.delta < 0) { //wheel down - zoom out
-                this->sim_view.zoom(1.2);
-                scale *= 1.2;
+                this->camera->zoom_out();
             }
             break;
+            // T0D0: redo UI system and input handle for more automatization of ui interaction
         case sf::Event::MouseButtonPressed:     // handler for LMB click, first go through all UI elements to check if they are clicked
             if (event.mouseButton.button == sf::Mouse::Left) {
-                std::string msg = this->static_ui_system.at("speed_controls").activate(this->engine->window.mapPixelToCoords(pointerPos, this->ui_view));
-                if (msg != "null") {
-                    if (msg == "increase_sim_speed" && simulation_speed.at(SimulationState::RUNNING) != 24) {
-                        simulation_speed.at(SimulationState::RUNNING) += 1;
-                        std::cout << "simulation_speed = " << simulation_speed.at(SimulationState::RUNNING) << "\n";
+                // checking if speed controls interface elements clicked
+                std::string msg = this->static_ui_system.at("speed_controls").activate(this->engine->window.mapPixelToCoords(pointerPos, this->camera->ui_view));
+                if (msg != "null") { // if true handling button clicks
+                    if (msg == "increase_sim_speed") { 
+                        this->simulation->increase_simulation_speed();
                         break;
-                    }
-                    if (msg == "decrease_sim_speed" && simulation_speed.at(SimulationState::RUNNING) != 1) {
-                        simulation_speed.at(SimulationState::RUNNING) -= 1;
-                        std::cout << "simulation_speed = " << simulation_speed.at(SimulationState::RUNNING) << "\n";
+                    } 
+                    if (msg == "decrease_sim_speed") { 
+                        this->simulation->decrease_simulation_speed();
                         break;
-                    }
-                    if (msg == "pause/resume" && simulation_state == SimulationState::RUNNING) {
-                        simulation_state = SimulationState::PAUSED;
-                        this->static_ui_system.at("speed_controls").
-                            setEntryText(this->static_ui_system.at("speed_controls").
-                                getEntry(this->engine->window.mapPixelToCoords(pointerPos, this->ui_view)), "I>");
-                        std::cout << "simulation paused\n";
-                        break;
-                    }
-                    if (msg == "pause/resume" && simulation_state == SimulationState::PAUSED) {
-                        simulation_state = SimulationState::RUNNING;
-                        this->static_ui_system.at("speed_controls").
-                            setEntryText(this->static_ui_system.at("speed_controls").
-                                getEntry(this->engine->window.mapPixelToCoords(pointerPos, this->ui_view)), "II");
-                        std::cout << "simulation resumed\n";
+                    } 
+                    if (msg == "pause/resume") { 
+                        this->simulation->change_simulation_state();
+                        if (this->simulation->get_simulation_state() == SimulationState::PAUSED) {
+                            this->static_ui_system.at("speed_controls").
+                                setEntryText(this->static_ui_system.at("speed_controls").
+                                    getEntry(this->engine->window.mapPixelToCoords(pointerPos, this->camera->ui_view)), "I>");
+                        }
+                        if (this->simulation->get_simulation_state() == SimulationState::RUNNING) {
+                            this->static_ui_system.at("speed_controls").
+                                setEntryText(this->static_ui_system.at("speed_controls").
+                                    getEntry(this->engine->window.mapPixelToCoords(pointerPos, this->camera->ui_view)), "II");
+                        }
+                        //std::cout << "simulation paused\n";
                         break;
                     }
                 }
-                msg = this->static_ui_system.at("menu_button").activate(this->engine->window.mapPixelToCoords(pointerPos, this->ui_view));
+                msg = this->static_ui_system.at("focus_tree").activate(this->engine->window.mapPixelToCoords(pointerPos, this->camera->ui_view));
                 if (msg != "null") {
+                    if (msg == "galaxy") {
+                        stop_focus(ActionState::NONE);
+                        break;
+                    }
+                    if (msg == "focus_solar_system" && (focus_type == FocusType::SOLARSYSTEM || focus_type == FocusType::PLANETSYSTEM || focus_type == FocusType::BODY)) {
+
+                        set_focus(focus_solar_system);
+                        break;
+                    }
+                    if (msg == "focus_planet_system" && (focus_type == FocusType::PLANETSYSTEM || focus_type == FocusType::BODY)) {
+                        set_focus(focus_ps);
+                        break;
+                    }
+                    if (msg == "focus_planet" && focus_type == FocusType::BODY) {
+                        set_focus(focus_body);
+                        break;
+                    }
+                }
+                // checking if menu button is clicked
+                msg = this->static_ui_system.at("menu_button").activate(this->engine->window.mapPixelToCoords(pointerPos, this->camera->ui_view));
+                if (msg != "null") { // if true opening pause menu
                     if (msg == "menu_button") {
                         go_to_pause();
                         break;
                     }
                 }
-                for (auto a : sol->get_systems()) {
-                    for (auto b : a->get_planets()) {
-                        if (this->dynamic_ui_system.at(b->get_name()).isMouseOver(this->engine->window.mapPixelToCoords(pointerPos, this->ui_view))) {
-                            msg = this->dynamic_ui_system.at(b->get_name()).activate(this->engine->window.mapPixelToCoords(pointerPos, this->ui_view));
-                            action_state = ActionState::FOCUSED;
-                            focus = b;
-                            std::cout << "focused on " << focus->get_name() << "\n";
+                // checking if object nameplates are clicked, focusing on clicked object if true
+                for (auto a : this->simulation->get_galaxy()->get_solar_systems()) {
+                    if (this->dynamic_ui_system.at(a).isMouseOver(this->engine->window.mapPixelToCoords(pointerPos, this->camera->ui_view))) {
+                        msg = this->dynamic_ui_system.at(a).activate(this->engine->window.mapPixelToCoords(pointerPos, this->camera->ui_view));
+                        set_focus(a);
+                        break;
+                    }
+                    for (auto b : a->get_systems()) {
+                        if (this->dynamic_ui_system.at(b).isMouseOver(this->engine->window.mapPixelToCoords(pointerPos, this->camera->ui_view))) {
+                            msg = this->dynamic_ui_system.at(b).activate(this->engine->window.mapPixelToCoords(pointerPos, this->camera->ui_view));
+                            set_focus(b);
                             break;
                         }
+                        for (auto c : b->get_planets()) {
+                            if (this->dynamic_ui_system.at(c).isMouseOver(this->engine->window.mapPixelToCoords(pointerPos, this->camera->ui_view))) {
+                                msg = this->dynamic_ui_system.at(c).activate(this->engine->window.mapPixelToCoords(pointerPos, this->camera->ui_view));
+                                set_focus(c);
+                                break;
+                            }
+                        }
                     }
-                }                        
+                }  
                 if (msg == "null") {    // if none of interface elements are clicked
-                    if (!(action_state == ActionState::PANNING)) {  // if camera is not moving by mouse
-                        if (action_state == ActionState::FOCUSED) { // in case of camera focused on some planet
-                            action_state = ActionState::PANNING;    // changing from focus to regular camera moving
-                            //std::cout << "Stopped focusing on " << focus->get_name() << "\n";
-                            focus = nullptr;                        // clearing focus
-                            //std::cout << "camera is moving" << " x0 = " << pointerPos.x << " y0 = " << pointerPos.y << "\n";
+                    if (!(action_state == ActionState::PANNING || action_state == ActionState::FOCUSEDPANNING)) {  // if camera is not moving by mouse                       
+                        if (action_state == ActionState::FOCUSED) {         // in case of focusing on some object
+                            action_state = ActionState::FOCUSEDPANNING;     // keep focus but move camera
                             oldPos = pointerPos;
                             break;
-                        }   // if camera si not focused 
-                        action_state = ActionState::PANNING;    // just move camera
-                        //std::cout << "camera is moving" << " x0 = " << pointerPos.x << " y0 = " << pointerPos.y << "\n";
-                        oldPos = pointerPos;
-                        break;
+                        }
+                            
+                        if (action_state == ActionState::NONE) {    // if camera is not focused
+                            action_state = ActionState::PANNING;    // just move camera
+                            oldPos = pointerPos;
+                            break;
+                        }                        
                     }
                 }
             }            
         case sf::Event::MouseButtonReleased: // mouse button released, map can't be moved now
             if (event.mouseButton.button == sf::Mouse::Left)
             {
-                if (action_state == ActionState::PANNING) {
-                    action_state = ActionState::NONE;
-                    //std::cout << "camera stopped moving = " << " x1 = " << oldPos.x << " y1 = " << oldPos.y << "\n";
+                if (action_state == ActionState::PANNING ) {     // if camera is moved by mouse
+                    action_state = ActionState::NONE;           // stop moving
+                    break;
+                }
+                if (action_state == ActionState::FOCUSEDPANNING) { // if camera is moved by mouse while focused on something
+                    action_state = ActionState::FOCUSED;           // stop moving by mouse but continue focus
                     break;
                 }
             }
             break;
         case sf::Event::MouseMoved: { 
-            if (action_state != ActionState::PANNING) { //if mouse button isnt pressed (camera isnt moving) highlight interface buttons
-                this->static_ui_system.at("speed_controls").highlight(this->static_ui_system.at("speed_controls").
-                    getEntry(this->engine->window.mapPixelToCoords(pointerPos, this->ui_view)));
-                this->static_ui_system.at("menu_button").highlight(this->static_ui_system.at("menu_button").
-                    getEntry(this->engine->window.mapPixelToCoords(pointerPos, this->ui_view)));
-                for (auto a: sol->get_systems())    // or planet nameplates for focus
-                    for (auto b : a->get_planets()) {
-                        this->dynamic_ui_system.at(b->get_name()).highlight(this->dynamic_ui_system.at(b->get_name()).isMouseOver(this->engine->window.mapPixelToCoords(pointerPos, this->ui_view)));
-                    }
-                break;
-            }
+            if (action_state != ActionState::PANNING && action_state != ActionState::FOCUSEDPANNING) { //if mouse button isnt pressed (camera isnt moving by mouse) highlight interface buttons
+                // looping through all static and dynamic UI elements to check if mouse hovering over them
+                for (auto a : this->static_ui_system) {
+                    if (this->static_ui_system.at(a.first).is_highlightable()) { // checking if this UI element is highlightable
+                        this->static_ui_system.at(a.first).highlight(this->static_ui_system.at(a.first).
+                                getEntry(this->engine->window.mapPixelToCoords(pointerPos, this->camera->ui_view)));
+                    }                    
+                }
+                for (auto a : this->dynamic_ui_system) {
+                    this->dynamic_ui_system.at(a.first).highlight(this->dynamic_ui_system.at(a.first).
+                            isMouseOver(this->engine->window.mapPixelToCoords(pointerPos, this->camera->ui_view)));
+                }
+                break;      // leaving this switch-case iteration, so following code doesn't execute
+            }               // if mouse button is pressed
             //defining pointer position "in window" coordinates
             const sf::Vector2i newPos = sf::Vector2i(event.mouseMove.x, event.mouseMove.y);
-            sf::Vector2i delta = oldPos - newPos;   //calculating difference between old and new positions of pointer
-            sim_view.setCenter(sim_view.getCenter() + sf::Vector2f(delta) * scale);     //setting center of view as old one plus delta in current scale
+            this->camera->set_input_offset(oldPos - newPos); // calculating offset and moving camera by it
             //saving new position as old one
             oldPos = sf::Vector2i(event.mouseMove.x, event.mouseMove.y);
             break;
         }
         case sf::Event::KeyPressed:
-            if (sf::Keyboard::isKeyPressed(sf::Keyboard::Escape)) // closes window on Esc pressed
+            if (sf::Keyboard::isKeyPressed(sf::Keyboard::Escape)) // opens pause menu on Esc pressed
             {
-                this->engine->window.close();
+                go_to_pause();
             }
             // moving camera with arrow keys
             if (sf::Keyboard::isKeyPressed(sf::Keyboard::Up)) {
-                sim_view.move(-1.f * sf::Vector2f(0, 5 * default_scale * scale));
+                this->camera->set_input_offset(-1 * sf::Vector2i(0, 5));
             }
             if (sf::Keyboard::isKeyPressed(sf::Keyboard::Down)) {
-                sim_view.move(1.f * sf::Vector2f(0, 5 * default_scale * scale));
+                this->camera->set_input_offset(1 * sf::Vector2i(0, 5));
             }
             if (sf::Keyboard::isKeyPressed(sf::Keyboard::Left)) {
-                sim_view.move(-1.f * sf::Vector2f(5 * default_scale * scale, 0));
+                this->camera->set_input_offset(-1 * sf::Vector2i(5, 0));
             }
             if (sf::Keyboard::isKeyPressed(sf::Keyboard::Right)) {
-                sim_view.move(1.f * sf::Vector2f(5 * default_scale * scale, 0));
+                this->camera->set_input_offset(1 * sf::Vector2i(5, 0));
             }
         default: 
             break;
@@ -254,39 +271,59 @@ void SimState::handle_input() {
 }
 
 void SimState::update_simulation(const float dt) {
-    step = simulation_speed.at(simulation_state) * dt * 3600;
-    this->sol->simulate(step);      
-    time += step;
-    // T0D0: 
-    // 1. possibly create separate class that handles simulation;
-    // 2. multithreaded simulation, broken down into two steps, so coordinates of objects don't change during gravity calculations:
+    this->simulation->simulate(dt);
+    // T0D0:
+    // 1. multithreaded simulation, broken down into two steps, so coordinates of objects don't change during gravity calculations:
     //  - calculating accelerations and speeds of all cosmic bodies;
     //  - moving all cosmic bodies;
+    //  implement queue for objects to simulate with number of threads, that is less than number of simulatable objects
     return;
 }
 
 void SimState::update_ui() {
-    static_ui_system.at("timer").setEntryText(0, utility::timer(time)); // changes elapsed simulated time on timer bar
-    for (auto a : sol->get_systems())   // cycles through all planets and puts corresponding nameplates near them
-        for (auto b : a->get_planets()) {
-            sf::Vector2i pos = this->engine->window.mapCoordsToPixel(sf::Vector2f(b->get_global_coords().x + (b->get_diameter() / 2 * sin(PI / 4)),
-                b->get_global_coords().y + b->get_diameter() / 2 * sin(PI / 4)), sim_view);
-            this->dynamic_ui_system.at(b->get_name()).set_position(this->engine->window.mapPixelToCoords(pos, ui_view));
+    static_ui_system.at("timer").setEntryText(0, utility::timer(this->simulation->get_time())); // changes elapsed simulated time on timer bar
+    for (auto a : this->simulation->get_galaxy()->get_solar_systems()) {
+        sf::Vector2i pos = this->engine->window.mapCoordsToPixel(sf::Vector2f(a->get_coords().x,
+            a->get_coords().y), this->camera->world_view);
+        this->dynamic_ui_system.at(a).set_position(this->engine->window.mapPixelToCoords(pos, this->camera->ui_view));
+        for (auto b : a->get_systems()) {
+            pos = this->engine->window.mapCoordsToPixel(sf::Vector2f(b->get_global_coords().x,
+                b->get_global_coords().y), this->camera->world_view);
+            this->dynamic_ui_system.at(b).set_position(this->engine->window.mapPixelToCoords(pos, this->camera->ui_view));
+            for (auto c : b->get_planets()) {
+                sf::Vector2i pos = this->engine->window.mapCoordsToPixel(sf::Vector2f(c->get_global_coords().x + (c->get_diameter() / 2 * sin(PI / 4)),
+                    c->get_global_coords().y + c->get_diameter() / 2 * sin(PI / 4)), this->camera->world_view);
+                this->dynamic_ui_system.at(c).set_position(this->engine->window.mapPixelToCoords(pos, this->camera->ui_view));
+            }
         }
+    }
 }
 
 void SimState::update(const float dt) {
     update_simulation(dt);
-    if (action_state == ActionState::FOCUSED)      // if camera is focused on planet moves view center to it
-        sim_view.setCenter(sf::Vector2f(focus->get_global_x(), focus->get_global_y()));
+    if (action_state == ActionState::FOCUSED || action_state == ActionState::FOCUSEDPANNING)      // if camera is focused on planet moves view center to it
+        switch (focus_type) {
+        case FocusType::SOLARSYSTEM:
+            this->camera->set_world_offset(focus_solar_system->get_speed() * this->simulation->get_step());
+            break;
+        case FocusType::PLANETSYSTEM:
+            this->camera->set_world_offset(Vectorld2d(focus_solar_system->get_speed().x * this->simulation->get_step() + focus_ps->get_speed().x * this->simulation->get_step(),
+                focus_solar_system->get_speed().y * this->simulation->get_step() + focus_ps->get_speed().y * this->simulation->get_step()));
+            break;
+        case FocusType::BODY:
+            this->camera->set_world_offset(Vectorld2d(focus_solar_system->get_speed().x * this->simulation->get_step() + focus_ps->get_speed().x * this->simulation->get_step() + focus_body->get_speed().x * this->simulation->get_step(),
+                focus_solar_system->get_speed().y * this->simulation->get_step() + focus_ps->get_speed().y * this->simulation->get_step() + focus_body->get_speed().y * this->simulation->get_step()));
+            break;
+        }            
+    this->camera->move();
     update_ui();    
 }
 
 void SimState::draw(const float dt) {
     this->engine->window.clear(sf::Color::Black);
-    this->engine->window.setView(this->sim_view);
-    this->sol->draw(this->engine->window);
-    this->engine->window.setView(this->ui_view);
+    this->engine->window.setView(this->camera->world_view);
+    this->simulation->get_galaxy()->draw(this->engine->window);
+    this->engine->window.setView(this->camera->ui_view);
     for (auto ui : this->static_ui_system)
         this->engine->window.draw(ui.second);
     for (auto dyn_ui : this->dynamic_ui_system)
@@ -295,4 +332,95 @@ void SimState::draw(const float dt) {
 
 void SimState::go_to_pause() {
     this->engine->push_state(new PauseMenuState(this->engine));
+}
+
+void SimState::set_focus(SolarSystem* target) {
+    if (action_state != ActionState::FOCUSED)
+        action_state = ActionState::FOCUSED;
+    if (focus_type == FocusType::BODY) {
+        focus_body = nullptr;
+        this->static_ui_system.at("focus_tree").setEntryText(3, "");
+        for (auto a : focus_ps->get_planets())
+            this->dynamic_ui_system.at(a).hide();
+        focus_ps = nullptr;
+        this->static_ui_system.at("focus_tree").setEntryText(2, "");
+    }
+    if (focus_type == FocusType::PLANETSYSTEM) {
+        for (auto a : focus_ps->get_planets())
+            this->dynamic_ui_system.at(a).hide();
+        focus_ps = nullptr;
+        this->static_ui_system.at("focus_tree").setEntryText(2, "");
+    }
+    if (focus_type == FocusType::SOLARSYSTEM) {
+        for (auto a : focus_solar_system->get_systems())
+            this->dynamic_ui_system.at(a).hide();
+        this->dynamic_ui_system.at(focus_solar_system).show();
+    }
+    focus_type = FocusType::SOLARSYSTEM;
+    focus_solar_system = target;
+    this->dynamic_ui_system.at(target).hide();
+    this->camera->move_to(sf::Vector2f(target->get_coords().x, target->get_coords().y));
+    std::cout << "focused on " << focus_solar_system->get_name() << "\n";
+    for (auto b : target->get_systems())
+        this->dynamic_ui_system.at(b).show();
+    this->static_ui_system.at("focus_tree").setEntryText(1, target->get_name());
+}
+
+void SimState::set_focus(PlanetSystem* target) {
+    if (action_state != ActionState::FOCUSED)
+        action_state = ActionState::FOCUSED;
+    if (focus_type == FocusType::PLANETSYSTEM) {
+        for (auto a : focus_ps->get_planets())
+            this->dynamic_ui_system.at(a).hide();
+        this->dynamic_ui_system.at(focus_ps).show();
+    }
+    if (focus_type == FocusType::BODY) {
+        focus_body = nullptr;
+        this->static_ui_system.at("focus_tree").setEntryText(3, "");
+        for (auto a : focus_ps->get_planets())
+            this->dynamic_ui_system.at(a).hide();
+        this->dynamic_ui_system.at(focus_ps).show();
+    }
+    focus_type = FocusType::PLANETSYSTEM;
+    focus_ps = target;
+    this->dynamic_ui_system.at(target).hide();
+    this->camera->move_to(sf::Vector2f(target->get_coords().x, target->get_coords().y));
+    std::cout << "focused on " << focus_ps->get_name() << "\n";
+    for (auto c : target->get_planets())
+        this->dynamic_ui_system.at(c).show();
+    this->static_ui_system.at("focus_tree").setEntryText(2, target->get_name());
+}
+
+void SimState::set_focus(CosmicBody* target) {
+    if (action_state != ActionState::FOCUSED)
+        action_state = ActionState::FOCUSED;
+    focus_type = FocusType::BODY;
+    focus_body = target;
+    this->camera->move_to(sf::Vector2f(target->get_global_coords().x, target->get_global_coords().y));
+    std::cout << "focused on " << focus_body->get_name() << "\n";
+    this->static_ui_system.at("focus_tree").setEntryText(3, target->get_name());
+}
+
+void SimState::stop_focus(ActionState new_state) {
+    action_state = new_state;
+    if (focus_body != nullptr) {
+        focus_body = nullptr;
+        this->static_ui_system.at("focus_tree").setEntryText(3, "");
+    }        
+    if (focus_ps != nullptr) {
+        for (auto a : focus_ps->get_planets())
+            this->dynamic_ui_system.at(a).hide();
+        this->dynamic_ui_system.at(focus_ps).hide();
+        focus_ps = nullptr;
+        this->static_ui_system.at("focus_tree").setEntryText(2, "");
+    }
+    if (focus_solar_system != nullptr) {
+        this->dynamic_ui_system.at(focus_solar_system).show();
+        for (auto a : focus_solar_system->get_systems())
+            this->dynamic_ui_system.at(a).hide();
+        focus_solar_system = nullptr;
+        this->static_ui_system.at("focus_tree").setEntryText(1, "");
+    }
+    focus_type = FocusType::NONE;
+    std::cout << "Stopped all focusing\n";
 }

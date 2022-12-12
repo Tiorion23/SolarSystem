@@ -138,46 +138,57 @@ std::vector<PlanetSystem*> utility::interaction_list(PlanetSystem* ps, std::vect
 */
 std::string utility::timer(unsigned long long int time) {
     std::string result;
-    std::stringstream myString;
-    int years = int(time / 31536000);
-    int months = int(time % 31536000 / 2628000);
-    int days = int(time % 31536000 % 2628000 / 87600);
+    std::stringstream output_stream;
+    int years = int(time / 31536000 + 1);
+    int months = int(time % 31536000 / 2628000 + 1);
+    int days = int(time % 31536000 % 2628000 / 87600 + 1);
     int hours = int(time % 31536000 % 2628000 % 87600 / 3600);
     int minutes = int(time % 31536000 % 2628000 % 87600 % 3600 / 60);
     int seconds = time%60;
+
+    output_stream << ((days < 10) ? ("0") : ("")) << days <<
+        ((months < 10) ? (".0") : (".")) << months <<
+        ((years < 10) ? (".000") : ((years < 100)?(".00"):((years < 100) ? (".0"):""))) << years <<       
+        ((hours < 10) ? ("  0") : (" ")) << hours << ((minutes < 10) ? (":0") : (":")) << minutes << ((seconds < 10) ? (":0") : (":")) << seconds << "\n";
     
-    myString << years << " years " << months << " months " << days << " days " << hours << " hours " << minutes << " minutes " << seconds << " seconds.\n";
-    result = myString.str();
+    /*output_stream << years << " years" << ((months < 10) ? (" 0") : (" ")) <<
+        months << " months" << ((days < 10) ? ("  0") : (" ")) <<
+        days << " days" << ((hours < 10) ? ("  0") : (" ")) <<
+        hours << ((minutes < 10) ? (":0") : (":")) << minutes << ((seconds < 10) ? (":0") : (":")) << seconds << "\n";*/
+        //hours << " hours" << ((minutes < 10) ? ("  0") : (" ")) <<
+        //minutes << " minutes" << ((seconds < 10) ? ("  0") : (" ")) <<
+        //seconds << " seconds.\n";
+    result = output_stream.str();
     return result;
 }
 
-std::string utility::info(const std::vector<CosmicBody*> &planets) {
-    std::string result;
-    std::stringstream myString;
-    for  (const auto& a : planets) { // for each planet a in planets
-        myString << a->get_name() << " F=" << grav_force(*a, interaction_list(*a, planets)).length() <<
-            //" Fx=" << grav_force(*a, interaction_list(*a, planets))[0] << 
-            //" Fy=" << grav_force(*a, interaction_list(*a, planets))[1] << 
-            " V = " << sqrt(pow(a->get_speed()[0],2) + pow(a->get_speed()[1], 2)) << 
-            /*" x = " << a->get_x() << " y = " << a->get_y() <<*/ "\n"; 
-    }
-    result += myString.str();
-    return result;
-}
-
-std::string utility::info(const PlanetSystem& ps) {
-    std::string result;
-    std::stringstream myString;
-    for (const auto& a : ps.get_planets()) { // for each planet b in planet system
-        myString << a->get_name() << " F=" << grav_force(*a, interaction_list(*a, ps.get_planets())).length() <<
-            //" Fx=" << grav_force(*a, interaction_list(*a, ps.get_planets()))[0] <<
-            //" Fy=" << grav_force(*a, interaction_list(*a, ps.get_planets()))[1] <<
-            " V = " << sqrt(pow(a->get_speed()[0], 2) + pow(a->get_speed()[1], 2)) <<
-            /*" x = " << a->get_x() << " y = " << a->get_y() <<*/ "\n";
-    }
-    result += myString.str();
-    return result;
-}
+//std::string utility::info(const std::vector<CosmicBody*> &planets) {
+//    std::string result;
+//    std::stringstream myString;
+//    for  (const auto& a : planets) { // for each planet a in planets
+//        myString << a->get_name() << " F=" << a->grav_force(interaction_list(*a, planets)).length() <<
+//            //" Fx=" << grav_force(*a, interaction_list(*a, planets))[0] << 
+//            //" Fy=" << grav_force(*a, interaction_list(*a, planets))[1] << 
+//            " V = " << sqrt(pow(a->get_speed()[0],2) + pow(a->get_speed()[1], 2)) << 
+//            /*" x = " << a->get_x() << " y = " << a->get_y() <<*/ "\n"; 
+//    }
+//    result += myString.str();
+//    return result;
+//}
+//
+//std::string utility::info(const PlanetSystem& ps) {
+//    std::string result;
+//    std::stringstream myString;
+//    for (const auto& a : ps.get_planets()) { // for each planet b in planet system
+//        myString << a->get_name() << " F=" << a->grav_force(interaction_list(*a, ps.get_planets())).length() <<
+//            //" Fx=" << grav_force(*a, interaction_list(*a, ps.get_planets()))[0] <<
+//            //" Fy=" << grav_force(*a, interaction_list(*a, ps.get_planets()))[1] <<
+//            " V = " << sqrt(pow(a->get_speed()[0], 2) + pow(a->get_speed()[1], 2)) <<
+//            /*" x = " << a->get_x() << " y = " << a->get_y() <<*/ "\n";
+//    }
+//    result += myString.str();
+//    return result;
+//}
 
 std::string utility::info(const std::vector<PlanetSystem*>& psystems) {
     std::string result;
@@ -187,8 +198,8 @@ std::string utility::info(const std::vector<PlanetSystem*>& psystems) {
             //" Fx=" << grav_force(*a, interaction_list(*a, psystems))[0] <<
             //" Fy=" << grav_force(*a, interaction_list(*a, psystems))[1] <<
             " V = " << sqrt(pow(a->get_speed()[0], 2) + pow(a->get_speed()[1], 2)) <<
-            " x = " << a->get_x() << " y = " << a->get_y() <<
-            " global x = " << a->get_global_x() << " global y = " << a->get_global_y() << "\n";
+            " x = " << a->get_coords().x << " y = " << a->get_coords().y <<
+            " global x = " << a->get_global_coords().x << " global y = " << a->get_global_coords().y << "\n";
     }
     result += myString.str();
     return result;

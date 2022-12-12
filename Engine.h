@@ -3,12 +3,16 @@
 
 #include <stack>
 #include <SFML/Graphics.hpp>
+#include "RandomNumberGenerator.h"
+#include "GalacticFactory.h"
 #include "State.h"
 #include "Ui.h"
 #include "utility.h"
 #include "GraphicsHandler.h"
 
 class State;
+class GalacticFactory;
+class RandomNumberGenerator;
 
 class Engine
 {
@@ -18,6 +22,7 @@ public:
     GraphicsHandler graphics_handler;
     std::map<std::string, UiStyle> styles;
     std::map<std::string, sf::Font> fonts;
+    RandomNumberGenerator* rng;
 
     //constructor, creates necessary variables and simulatable objects
     Engine();
@@ -35,8 +40,6 @@ public:
     void change_state(State* state);
     //returns whatever state is on top of state stack
     State* peek_state();
-    //creates shapes (T0D0: some way for shape creation that is connected to objects in simulation and not by hand, but automatically)
-    void create_shapes();
 
     //starts engines's working cycle
     void run();

@@ -1,44 +1,44 @@
 #ifndef CAMERA
 #define CAMERA
 #include <SFML/Graphics.hpp>
+#include "Vectorld2d.h"
 
 class Camera
 {
-	int xRes; //resolution x size
-	int yRes; // resoultion y size
-	float default_scale;  // default display scale
-	float scale; //current display scale
-	const sf::View startingView; //starting camera view, used for getting back to default camera state
-	sf::View view; //current camera view
-	sf::View ui_view; //interface view
-
 public:
+	float default_world_display_scale;  // default world display scale
+	float world_display_scale; //current world display scale
+	sf::View world_view; //world camera view
+	sf::View ui_view; //interface view
+	sf::Vector2i input_offset;  // offset from user input
+	Vectorld2d world_offset;  // offset from world, used in case of focusing on some object
+
 	// default constructor
 	Camera();
-	// constructor, takes in starting point and window resolution
-	Camera(sf::Vector2f startCoords, sf::Vector2f resolution);
+	// constructor, takes in window resolution
+	Camera(sf::Vector2f resolution);
 
-	//getter for current view
-	sf::View getView() const;
-	//getter for UI view
-	sf::View getUIView() const;
-	//getter for starting view
-	sf::View getStartingView() const;
-	//getter for current scale
-	float get_scale();
-
-	//setter for view by new view
-	void setView(sf::View newView);
-	//setter for view by center and size
-	void setView(sf::Vector2f center, sf::Vector2f size);
+	void set_input_offset(sf::Vector2i offset);
+	void set_world_offset(Vectorld2d offset);
+	void reset_offsets();
+	
 	//resizes after change of size of window
-	void resize(int newWidth, int newHeight);
-	//camera move
-	void move(sf::Vector2i oldPosition, sf::Vector2i newPosition);
-	//resets camera to default 
-	void reset();
-	//changes camera scale
-	void rescale(float s);
+	void resize(float newWidth, float newHeight);
+	// moves camera by both input and world offsets
+	void move();
+	// moves camera to given coordinates
+	void move_to(sf::Vector2f coords);
+	//camera move by old position of pointer and new one
+	void move(sf::Vector2i old_pos, sf::Vector2i new_pos);
+	// camera move by required camera offset given in float values for offset given in world coordinates
+	void move_by_world_offset();
+	// camera move by given by camera offset given in int values, mostly for offset of mouse movement given in in-window coordinates
+	void move_by_input_offset();
+
+	// zooms in world view
+	void zoom();
+	// zooms out world view
+	void zoom_out();
 };
 
 #endif

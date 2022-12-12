@@ -5,43 +5,50 @@
 #include "SolarSystem.h"
 #include "Ui.h"
 #include "DynamicUi.h"
+#include "Camera.h"
+#include "GalacticFactory.h"
+#include "Simulation.h"
 
-enum class ActionState { NONE, PANNING, FOCUSED };
-enum class SimulationState {RUNNING, PAUSED};
+enum class ActionState { NONE, PANNING, FOCUSED, FOCUSEDPANNING };
+enum class FocusType {NONE, SOLARSYSTEM, PLANETSYSTEM, BODY};
 
 class SimState : public State
 {
-	sf::View sim_view;	// view used to draw simulated objects
-	sf::View ui_view;	// view used to draw UI
+	Camera* camera;
 
 	std::map<std::string, Ui> static_ui_system;		// static (not-moving) UI elements
-	std::map<std::string, DynamicUi> dynamic_ui_system;		// dynamic (moving) UI elements
-
-	float default_scale;
-	float scale;
+	std::map<MaterialPoint*, DynamicUi> dynamic_ui_system;		// dynamic (moving) UI elements attached to cosmic bodies, planet systems and solar systems
 
 	ActionState action_state;
-	SimulationState simulation_state;
+	FocusType focus_type;
 
 	sf::Vector2i oldPos;
 	sf::Vector2i pointerPos;
 
-	SolarSystem* sol;
-	CosmicBody* focus;				// object currently in focus
-	unsigned long long int time;	// number of simulated seconds
-	int step;						// simulation time-step
-	// contains simulation speed in hours per second for simulation (can be changed) and paused state (always 0)
-	std::map<SimulationState, int> simulation_speed;
+	GalacticFactory* galactic_factory;
+
+	Simulation* simulation;
+	CosmicBody* focus_body;				// object currently in focus REWORK FOCUS SYSTEM TO BE ABLE TO FOCUS ON SOLAR SYSTEMS, PLANET SYSTEMS, PLANETS, UI AS WELL!
+	PlanetSystem* focus_ps;
+	SolarSystem* focus_solar_system;
 
 	~SimState();
 
-	// functions called once in constructor
-	// creates all objects in solar system
-	SolarSystem* initialize_solar_system();
-	// creates all static and dynamic UI elements and puts them into corresponding maps
+	// creates all static and dynamic UI elements and puts them into corresponding maps, called once when state is constructed
 	void initialize_ui();
-	// pause menu, puts new pause menu on stack
+	
+	// pause menu, puts new pause menu on the state stack
 	void go_to_pause();
+
+	void set_focus(SolarSystem* target);
+	void set_focus(PlanetSystem* target);
+	void set_focus(CosmicBody* target);
+
+	void remove_cosmic_body_focus();
+	void remove_planet_system_focus(PlanetSystem* target);
+	void remove_solar_system_focus(CosmicBody* target);
+
+	void stop_focus(ActionState new_state);
 
 public:
 	virtual void handle_input();

@@ -5,7 +5,7 @@ PauseMenuState::PauseMenuState(Engine* engine) {
     sf::Vector2f pos = sf::Vector2f(this->engine->window.getSize());
     view.setSize(pos);
     view.setCenter(pos * 0.5f);    
-    this->ui_system.emplace("menu", Ui(sf::Vector2f(192, 32), 4, false, engine->styles.at("button"),
+    this->ui_system.emplace("menu", Ui(sf::Vector2f(192, 32), 4, false, true, engine->styles.at("button"),
         { std::make_pair("Resume simulation", "resume_simulation"),
         std::make_pair("Exit","exit") }));
 
@@ -46,10 +46,10 @@ void PauseMenuState::handle_input() {
             {
                 std::string msg = this->ui_system.at("menu").activate(mousePos);
 
-                if (msg == "resume_simulation")
+                if (msg == "resume_simulation")     // closing pause menu and resumin simulation
                 {
                     this->engine->pop_state();
-                    return;
+                    return;                         // using return here for handle_input() loop to actually stop
                 }
                 else if (msg == "exit")
                     this->engine->window.close();
@@ -57,10 +57,10 @@ void PauseMenuState::handle_input() {
             break;
         }
         case sf::Event::KeyPressed:
-            if (sf::Keyboard::isKeyPressed(sf::Keyboard::Escape)) // closes window on Esc pressed
+            if (sf::Keyboard::isKeyPressed(sf::Keyboard::Escape))   // closes pause menu and resumes simulation on Esc pressed
             {
-                this->engine->window.close();
-                break;
+                this->engine->pop_state();
+                return;                                             // using return here for handle_input() loop to actually stop
             }
         default: break;
         }

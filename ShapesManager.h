@@ -12,7 +12,9 @@ public:
 	ShapesManager();
 	// adding shape of set color radius and name
 	void add_shape(const std::string& name, float radius, sf::Color color);
-	// returns shape by given name
+	// checks if there is shape in manager with given name
+	bool is_shape_available(const std::string& shape);
+	// returns reference to shape by given name
 	sf::CircleShape& get_shape(const std::string& shape);
 };
 

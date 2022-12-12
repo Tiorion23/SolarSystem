@@ -2,7 +2,6 @@
 #define UTILITY
 #include "CosmicBody.h"
 #include "PlanetSystem.h"
-#include <math.h>
 #include <string>
 #include <sstream> // для stringstream
 #define G 6.67e-11

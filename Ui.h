@@ -10,6 +10,7 @@
 class Ui: public sf::Transformable, public sf::Drawable {
 private:    
     bool horizontal;            // If true the menu entries will be horizontally, not vertically, adjacent
+    const bool highlightable;         // if true entry changes color, when mouse is ove it
     UiStyle style;              // Style of UI element
     sf::Vector2f dimensions;    // Size of UI element
     int padding;                // distance between text and borders to prevent overlapping
@@ -25,7 +26,7 @@ public:
     // horizontal - true if UI elements are horizontally aligned;
     // style - UI style of elements;
     // entries - pair of strings, first is text displayed on UI entry, second - message, that entry returns
-    Ui(sf::Vector2f dimensions, int padding, bool horizontal, UiStyle& style, std::vector<std::pair<std::string, std::string>> entries);
+    Ui(sf::Vector2f dimensions, int padding, bool horizontal, bool highlightable, UiStyle& style, std::vector<std::pair<std::string, std::string>> entries);
 
     // Returns the total dimensions of the UI as sum of its elements
     sf::Vector2f getSize();
@@ -46,6 +47,8 @@ public:
     void show();
 
     void hide();
+
+    bool is_highlightable() const;
 
     // Highlights an entry of the menu.
     void highlight(const int entry);

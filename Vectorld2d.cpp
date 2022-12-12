@@ -12,6 +12,11 @@ Vectorld2d::Vectorld2d(long double ax, long double ay) {
     y = ay;
 }
 
+Vectorld2d::Vectorld2d(const Vectorld2d& v) {
+    this->x = v.x;
+    this->y = v.y;
+}
+
 bool operator==(const Vectorld2d& v1, const Vectorld2d& v2)
 {
     if (v1.x == v2.x && v1.y == v2.y)
@@ -53,16 +58,11 @@ Vectorld2d operator+ (const Vectorld2d& v1, const Vectorld2d& v2) {
     return result;
 }
 
-Vectorld2d operator* (const Vectorld2d& v1, const int m) {
-    Vectorld2d result = Vectorld2d(v1.x * m, v1.y * m);
-    return result;
-}
-
-Vectorld2d operator* (const Vectorld2d& v1, const long double m) {
-    Vectorld2d result = Vectorld2d(v1.x * m, v1.y * m);
-    return result;
-}
-
 const long double Vectorld2d::length() {
     return sqrt(pow(x, 2) + pow(y, 2));
+}
+
+void Vectorld2d::mirror() {
+    x = -x;
+    y = -y;
 }
